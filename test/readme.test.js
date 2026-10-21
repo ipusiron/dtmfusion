@@ -23,7 +23,7 @@ for (const file of ['README.md', 'README.en.md']) {
     }
     assert.match(meta[1], /category_ja:\r?\n  - 通信技術\r?\n  - プライバシー/);
     assert.match(meta[1], /category_en:\r?\n  - Communication Technologies\r?\n  - Privacy/);
-    assert.equal([...text.matchAll(/^## /gm)].length, 16);
+    assert.equal([...text.matchAll(/^## /gm)].length, 22);
     assert.equal([...text.matchAll(/https:\/\/img.shields.io\//g)].length, 5);
     assert.ok(text.includes('852.27') && text.includes('852.4'));
     for (const url of ['T-REC-Q.23-198811-I/en', 'T-REC-Q.24-198811-I/en', 'analog_gisanshi.pdf',
@@ -32,6 +32,67 @@ for (const file of ['README.md', 'README.en.md']) {
     }
     assert.doesNotMatch(text, /盗聴できる|乗っ取り|不正発信|照合|突き合わせ|効く|走る|全て|分かる|既に|無い|インターフェース/);
     for (const section of text.split(/^## /m)) assert.ok((section.match(/\*\*/g) || []).length <= 4);
+  });
+
+  test(`${file}: six background sections retain their sources and book links`, () => {
+    const text = read(file), ja = file === 'README.md';
+    const headings = ja ? [
+      '☎️ 電話機とDTMF音の関係', '🕰️ DTMF音の歴史', '📞 今でもDTMF音を使って通話できるか',
+      '🧩 応用手法', '🔊 エアギャップの秘密通信路への可能性', '🌏 海外と日本の違い'
+    ] : [
+      '☎️ Telephone sets and DTMF', '🕰️ History of DTMF', '📞 Can DTMF still be used for calls?',
+      '🧩 Applications', '🔊 Potential for covert channels across air gaps', '🌏 Differences between Japan and other systems'
+    ];
+    const sources = [
+      'https://www.rfc-editor.org/rfc/rfc4733',
+      'https://www.itu.int/rec/T-REC-Q.23-198811-I/en',
+      'https://www.ntt-west.co.jp/news/2509/250929a.html',
+      'https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf',
+      'https://www.itu.int/rec/T-REC-Q.24-198811-I/en',
+      'https://www.ntt-west.co.jp/denwa/charge/basic/basic.html'
+    ];
+    const sections = text.split(/^## /m), positions = [];
+    for (const [i, heading] of headings.entries()) {
+      const matches = sections.filter(section => section.split(/\r?\n/)[0] === heading);
+      assert.equal(matches.length, 1, heading);
+      assert.ok(matches[0].includes(sources[i]), heading);
+      positions.push(sections.indexOf(matches[0]));
+      if (i === 4) {
+        for (const url of ['https://akademeia.info/?page_id=53554', 'https://akademeia.info/?page_id=53563',
+          'https://ipusiron.github.io/airborne-tone-link/', 'https://ipusiron.github.io/mic-gain-logger/']) {
+          assert.ok(matches[0].includes(`](${url})`), url);
+        }
+      }
+    }
+    assert.ok(positions.every((position, i) => !i || position === positions[i - 1] + 1));
+  });
+
+  test(`${file}: theoretical throughput bounds recalculate from sixteen symbols and source cycles`, () => {
+    const text = read(file);
+    const rows = text.split('\n').filter(line => /^\| (AT&T|日本 \/ NTT|Japan \/ NTT) \|/.test(line)).map(split);
+    assert.equal(rows.length, 2);
+    for (const [i, row] of rows.entries()) {
+      const [, bits, cycle, calculated, approximate] = row;
+      const profile = c.PROFILES[i === 0 ? 'ATT' : 'NTT'];
+      assert.equal(+bits, Math.log2(c.KEYS.join('').length));
+      assert.equal(+cycle, profile.cycle);
+      const rate = +bits / (+cycle / 1000);
+      assert.equal(+calculated, +rate.toFixed(2));
+      assert.equal(+approximate, Math.round(rate));
+    }
+    assert.deepEqual(rows.map(row => +row[4]), [43, 33]);
+    assert.match(text, file === 'README.md' ? /計算上の上限であり、実測の転送速度ではありません/ :
+      /calculated upper bounds[\s\S]*not measured transfer rates/);
+  });
+
+  test(`${file}: residential monthly price table preserves the dated source values`, () => {
+    const text = read(file);
+    const rows = text.split('\n').filter(line => /^\| ([123]級取扱所|Class [123]) \|/.test(line)).map(split);
+    assert.equal(rows.length, 3);
+    assert.deepEqual(rows.map(row => row.slice(1).map(cell => Number(cell.replace(/[^0-9]/g, '')))),
+      [[1980, 1815], [1980, 1925], [2090, 2090]]);
+    assert.match(text, file === 'README.md' ? /2026年10月確認/ : /checked October 2026/);
+    assert.doesNotMatch(text, /税込|tax[- ]inclusive|including tax/i);
   });
 
   test(`${file}: four examples recalculate`, () => {
