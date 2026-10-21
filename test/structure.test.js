@@ -23,6 +23,21 @@ test('D application contains no forbidden APIs or phrasing', () => {
     assert.doesNotMatch(read(name), /Worklet|WASM|fetch\s*\(|innerHTML|盗聴できる|乗っ取り|不正発信|照合|突き合わせ|効く|走る/);
   }
 });
+
+test('The page and READMEs use the Day121 heading without Lab branding', () => {
+  assert.match(read('index.html'), /DAY121 · KEY \/ TONE \/ CIRCUIT/);
+  for (const file of ['index.html', 'README.md', 'README.en.md']) assert.doesNotMatch(read(file), /\b(?:Lab|LAB)\b/);
+  for (const dictionary of Object.values(require('../messages.js'))) {
+    for (const value of Object.values(dictionary)) assert.doesNotMatch(value, /\b(?:Lab|LAB)\b/);
+  }
+});
+
+test('Repository ignore rules do not contain local work folders', () => {
+  const patterns = read('.gitignore').split(/\r?\n/).map(line => line.trim());
+  for (const name of ['backups', 'logs', '.work']) {
+    assert.ok(!patterns.some(pattern => pattern.replace(/^\//, '').replace(/\/$/, '') === name), name);
+  }
+});
 test('format and source readability', () => {
   const files = [...fs.readdirSync(root).filter(n => /\.(js|css|html)$/.test(n)),
     ...fs.readdirSync(__dirname).filter(n => n.endsWith('.js')).map(n => `test/${n}`)];

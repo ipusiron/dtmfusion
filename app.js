@@ -2,11 +2,9 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id), dictionaries = DTMFMessages;
-  let language = 'ja', theme = 'dark';
-  try {
-    if (localStorage.getItem('dtmfusion.language') === 'en') language = 'en';
-    if (localStorage.getItem('dtmfusion.theme') === 'light') theme = 'light';
-  } catch (_) { /* Preferences are optional. */ }
+  const stored = key => { try { return localStorage.getItem('dtmfusion.' + key); } catch (_) { return null; } };
+  let language = stored('language') === 'en' ? 'en' : 'ja';
+  let theme = stored('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   const core = DTMFCore, audio = DTMFAudio.create();
   let statusKey = 'ready', lastPlayed = null, activeKey = null, heldKey = null, micActive = false;
   let previewKey = '5', xray = true;
@@ -215,10 +213,12 @@
     $('powers').replaceChildren();
     core.FREQUENCIES.forEach((f, i) => {
       const el = node('label', undefined, 'power'), meter = node('meter');
-      meter.min = -120; meter.max = 0;
-      meter.value = Math.max(-120, 10 * Math.log10(Math.max(powers[i], 1e-12)));
+      const db = Math.max(-120, Math.min(0, 10 * Math.log10(Math.max(powers[i], 1e-12))));
+      meter.min = -60; meter.max = 0; meter.value = Math.max(-60, db);
       meter.setAttribute('aria-label', `${f} Hz`);
-      el.append(node('span', `${f} Hz`), meter, node('span', `${Math.round(meter.value)} dB`));
+      meter.setAttribute('aria-valuetext', `${Math.round(db)} dB`);
+      meter.setAttribute('aria-describedby', 'power-scale');
+      el.append(node('span', `${f} Hz`), meter, node('span', `${Math.round(db)} dB`));
       $('powers').append(el);
     });
   }
