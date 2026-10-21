@@ -80,6 +80,7 @@ Light versions: [block](assets/block-en-light.png) / [IC](assets/ic-en-light.png
 ## ✨ Features
 
 - Sixteen keys in a 4×4 matrix; screen and keyboard input plays while held, for up to 60 seconds
+- See through ON/OFF: frequency-labeled rows and columns behind the keys, with the active pair and intersection highlighted
 - Sequences of up to 32 characters; defaults of 80 ms tone, 60 ms pause, and high group +2 dB
 - Level difference −10 to +10 dB, frequency offset −5 to +5%, and tone/pause lengths 10–200 ms
 - Two circuit layers, waveform, spectrum, and enlarged 28-step IC waveform
@@ -90,6 +91,8 @@ Light versions: [block](assets/block-en-light.png) / [IC](assets/ic-en-light.png
 ## 📐 Screen layout
 
 The page proceeds from key and circuit to waveform/spectrum, decoding, and lessons. On narrow screens the circuit appears below the keypad.
+Use the See through button above the keypad. It starts ON: four horizontal lines represent the low group and four vertical lines the high group.
+Frequency labels follow the ideal/IC layer and frequency offset. OFF restores the normal keypad while the circuit diagram remains visible.
 Waveform and spectrum are previews generated from the selected key and settings, not microphone measurements. The waveform spans 12 ms and the spectrum 600–1750 Hz.
 Use the decoder's power meters and decisions to inspect microphone or WAV analysis.
 
@@ -335,8 +338,10 @@ npm test
 node --test test/frequency.test.js
 ```
 
-GitHub Actions checks syntax and tests on push and pull_request. Coverage includes mappings, 16-key round trips, gain, timing, noise, frequency offset, WAV, audio cleanup, CSP, dictionaries, contrast, and README calculations.
+GitHub Actions checks syntax and all Node.js tests on push and pull_request. Coverage includes mappings, 16-key round trips, gain, timing, noise, frequency offset, WAV, audio cleanup, CSP, dictionaries, contrast, and README calculations.
 Browser checks cover 96 combinations of HTTP/`file://`, Chromium/Firefox, 320/390/1280 px, Japanese/English, dark/light, and both circuit layers.
+With Python Playwright and Chromium/Firefox already available, run `python test/keypad.browser.py` to repeat the 96 see-through conditions.
+It checks ON/OFF, all sixteen key intersections, frequency labels and offsets, 44 px targets, and label overlap; results and images go in `.work/`.
 OfflineAudioContext covers 12 combinations of three rates, two waveforms, and two profiles. A generated WAV supplied to a fake microphone recovers `123*#`. These are not substitutes for physical acoustic tests.
 
 ## 📁 Directory structure
@@ -378,7 +383,8 @@ dtmfusion/                     # Tool files
 │   ├── lesson-ja-light.png    # Lessons, Japanese, light
 │   ├── lesson-en-dark.png     # Lessons, English, dark
 │   └── lesson-en-light.png    # Lessons, English, light
-└── test/                      # node:test suite
+└── test/                      # Node and browser checks
+    ├── keypad.browser.py      # See-through controls, labels and intersections
     ├── core.test.js           # Mapping, synthesis, decoding and limits
     ├── frequency.test.js      # Offset and wrong-key regressions
     ├── audio.test.js          # Audio resource cleanup
