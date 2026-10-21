@@ -32,7 +32,13 @@
       <div class="instrument-grid">
         <div class="key-station">
           <div class="readout"><output id="active-key">—</output><span id="active-frequency">697 + 1209 Hz</span></div>
-          <div id="keypad" class="keypad" aria-label="DTMF"></div>
+          <button id="xray-toggle" class="xray-toggle" type="button" aria-pressed="true" aria-controls="keypad-wires">
+            <span data-i18n="xray"></span><span id="xray-state">ON</span></button>
+          <div id="keypad-shell" class="keypad-shell xray-on">
+            <svg id="keypad-wires" class="keypad-wires" role="img" data-label="matrixLabel"></svg>
+            <div id="keypad" class="keypad" aria-label="DTMF"></div>
+          </div>
+          <p class="muted matrix-hint" data-i18n="matrixHint"></p>
           <p class="muted" data-i18n="holdHint"></p>
         </div>
         <div class="circuit-station">

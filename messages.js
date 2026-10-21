@@ -105,6 +105,9 @@
       "ideal": "ブロック図 / 理想波形",
       "ic": "IC世代 / TP5089",
       "holdHint": "キーを押している間だけ再生（最長60秒）。キーボードの0〜9・*・#・A〜Dにも対応します。",
+      "xray": "透かして見る",
+      "matrixLabel": "キーの背面の周波数線。横4本が低群、縦4本が高群。単位Hz。",
+      "matrixHint": "ONでキーの背面を表示。横＝低群、縦＝高群（Hz）。ラベルは回路の層と周波数ずれの設定に連動します。",
       "sequence": "番号を鳴らす",
       "inputHint": "0〜9・*・#・A〜D、上限32文字。ほかの文字は取り除きます。",
       "play": "▶ 番号を鳴らす",
@@ -180,7 +183,8 @@
       theme: '明暗を切り替える', language: 'Switch to English', help: '使い方', close: '閉じる',
       before: '始める前に', caution: '端末の音量を小さくしてから鳴らしてください。周りの人やペットにも配慮してください。',
       keypad: '01 / キーから信号へ', scope: '02 / 波形とスペクトル', decode: '03 / 音から番号へ',
-      learn: '04 / しくみを読む', helpBody: 'キーを押している間だけ2つの音が鳴ります。回路の経路を見て、音から番号を戻します。',
+      learn: '04 / しくみを読む', helpBody: 'キーを押している間だけ2つの音が鳴ります。「透かして見る」をONにすると、' +
+        'キーの背面に行と列の周波数線が現れます。選んだ2本と交点が光り、OFFで通常表示に戻ります。右側（狭い画面では下側）の回路図も連動します。',
       privacy: '音声は外へ送らず、録音・自動保存しません。保存する設定は言語と明暗だけです。',
       author: '作者IPUSIRONはセキュリティ分野の技術書の著者です。作者は悪用を勧めません。',
       ready: '準備完了', skeleton: '計算部と画面の準備ができました。'
@@ -305,6 +309,9 @@
       "ideal": "Block diagram / ideal tones",
       "ic": "IC generation / TP5089",
       "holdHint": "Hold a key to play (up to 60 seconds). Keyboard: 0–9, *, #, A–D.",
+      "xray": "See through",
+      "matrixLabel": "Frequency lines behind the keys: four low-group rows and four high-group columns, in Hz.",
+      "matrixHint": "ON reveals the back of the keys. Rows = low group; columns = high group (Hz). Labels follow the circuit layer and frequency offset.",
       "sequence": "Play a number",
       "inputHint": "0–9, *, #, A–D; up to 32 characters. Other characters are removed.",
       "play": "▶ Play number",
@@ -380,7 +387,9 @@
       theme: 'Toggle light and dark', language: '日本語に切り替える', help: 'Help', close: 'Close',
       before: 'Before you begin', caution: 'Lower your device volume before playing. Consider people and pets nearby.',
       keypad: '01 / From key to signal', scope: '02 / Waveform and spectrum', decode: '03 / From sound to digits',
-      learn: '04 / Explore the principles', helpBody: 'Hold a key to play two tones. Follow the circuit, then recover the key from sound.',
+      learn: '04 / Explore the principles', helpBody: 'Hold a key to play two tones. Turn See through ON to reveal frequency lines behind the keys. ' +
+        'The two selected lines and their intersection light up. OFF restores the normal keypad. ' +
+        'The circuit on the right (below on narrow screens) follows too.',
       privacy: 'Audio stays on this device. No recording or automatic saving. Only language and theme preferences are stored.',
       author: 'IPUSIRON writes technical books on security. The author does not encourage misuse.',
       ready: 'Ready', skeleton: 'The calculation core and page shell are ready.'

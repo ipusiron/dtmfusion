@@ -9,7 +9,7 @@
   } catch (_) { /* Preferences are optional. */ }
   const core = DTMFCore, audio = DTMFAudio.create();
   let statusKey = 'ready', lastPlayed = null, activeKey = null, heldKey = null, micActive = false;
-  let previewKey = '5';
+  let previewKey = '5', xray = true;
   let result = null, animation = 0, playTimeline = null, operation = 0;
   const t = key => dictionaries[language][key] || key;
   function save() {
@@ -53,13 +53,50 @@
       el.append(node('p', Object.entries(row.fields).map(([field, state]) => `${t(field)} ${t(state)}`).join(' / ')));
       $('standards').append(el);
     }
-    drawCircuit();
+    drawCircuit(); drawKeyMatrix();
   }
   function svgNode(tag, attributes = {}, text) {
     const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value);
     if (text !== undefined) el.textContent = text;
     return el;
+  }
+  function drawKeyMatrix() {
+    const svg = $('keypad-wires'), cfg = settings(), digits = cfg.mode === 'ic' || cfg.offset ? 1 : 0;
+    $('xray-toggle').setAttribute('aria-pressed', String(xray));
+    $('xray-state').textContent = xray ? 'ON' : 'OFF';
+    $('keypad-shell').classList.toggle('xray-on', xray); svg.toggleAttribute('hidden', !xray);
+    const buttons = [...$('keypad').querySelectorAll('button')];
+    buttons.forEach(button => {
+      const pair = core.actualFrequencies(button.dataset.key, cfg).map(f => f.toFixed(digits));
+      button.setAttribute('aria-label', `${button.dataset.key}: ${pair.join(' + ')} Hz`);
+    });
+    svg.replaceChildren();
+    if (!xray) return;
+    const bounds = $('keypad-shell').getBoundingClientRect();
+    svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+    svg.append(svgNode('text', { x: 24, y: 25 }, 'Hz'));
+    const centers = buttons.map(button => {
+      const r = button.getBoundingClientRect();
+      return { x: r.left - bounds.left + r.width / 2, y: r.top - bounds.top + r.height / 2 };
+    });
+    const info = activeKey ? core.keyInfo(activeKey, cfg.mode) : null;
+    for (let i = 0; i < 4; i++) {
+      const y = centers[i * 4].y, x = centers[i].x;
+      const row = info && info.row === i ? ' is-active' : '', col = info && info.col === i ? ' is-active' : '';
+      svg.append(svgNode('line', { x1: 45, x2: bounds.width, y1: y, y2: y,
+        class: `matrix-wire matrix-row${row}`, 'data-matrix-row': i }));
+      svg.append(svgNode('line', { x1: x, x2: x, y1: 34, y2: bounds.height,
+        class: `matrix-wire matrix-col${col}`, 'data-matrix-col': i }));
+      const low = core.actualFrequencies(core.KEYS[i][0], cfg)[0].toFixed(digits);
+      const high = core.actualFrequencies(core.KEYS[0][i], cfg)[1].toFixed(digits);
+      svg.append(svgNode('text', { x: 42, y: y + 4, class: `matrix-row-label${row}` }, low));
+      svg.append(svgNode('text', { x, y: 25, class: `matrix-col-label${col}` }, high));
+    }
+    if (info) {
+      const center = centers[info.row * 4 + info.col];
+      svg.append(svgNode('circle', { cx: center.x, cy: center.y, r: 19, class: 'matrix-intersection' }));
+    }
   }
   function drawCircuit() {
     const small = $('circuit').clientWidth < 430, width = small ? 300 : 620;
@@ -340,7 +377,8 @@
     $('profile').disabled = false; $('mic').disabled = false; showStatus('stopped');
   }
   for (const key of core.KEYS.join('')) {
-    const button = node('button', key); button.type = 'button'; button.dataset.key = key;
+    const button = node('button'); button.append(node('span', key, 'key-symbol'));
+    button.type = 'button'; button.dataset.key = key;
     button.setAttribute('aria-pressed', 'false');
     button.addEventListener('pointerdown', e => {
       if (e.button !== 0) return;
@@ -376,13 +414,14 @@
   $('layer').addEventListener('change', () => {
     stopPlayback(); $('twist').value = $('layer').value === 'ic' ? '2.7' : '2'; updateControls(); drawScope();
   });
+  $('xray-toggle').addEventListener('click', () => { xray = !xray; drawKeyMatrix(); });
   $('play').addEventListener('click', play); $('stop').addEventListener('click', stopAll);
   $('direct').addEventListener('click', direct); $('wav').addEventListener('change', readWav);
   $('export').addEventListener('click', exportWav); $('mic').addEventListener('click', listen);
   $('mic-stop').addEventListener('click', () => { audio.stopMic(); micActive = false;
     $('profile').disabled = false; $('mic').disabled = false; showStatus('stopped'); });
   $('clear').addEventListener('click', () => { stopAll(); result = lastPlayed = null; renderResult(); showStatus('cleared'); });
-  window.addEventListener('resize', drawCircuit);
+  window.addEventListener('resize', () => { drawCircuit(); drawKeyMatrix(); });
   window.addEventListener('blur', stopAll);
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopAll(); });
   window.addEventListener('pagehide', () => audio.close());
