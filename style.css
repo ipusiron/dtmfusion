@@ -104,3 +104,48 @@ input:not([type="range"]), select { width: 100%; }
   .standards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .powers { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
+
+.circuit-station select { margin-bottom: 12px; }
+.circuit-svg { display: block; width: 100%; max-width: 620px; margin: 0 auto; }
+.circuit-svg text { fill: var(--fg); font: 14px "Meiryo", "Yu Gothic", sans-serif; text-anchor: middle; }
+.circuit-svg .small-text { font-size: 12px; fill: var(--muted); }
+.circuit-svg .chip { fill: var(--inset); stroke: var(--border); stroke-width: 1; }
+.circuit-svg .wire { fill: none; stroke: var(--line); stroke-width: 2; stroke-linejoin: round; }
+.circuit-svg .arrow { fill: var(--line); }
+.circuit-svg .selected { stroke: var(--neon); stroke-width: 3.5; stroke-dasharray: 8 4; }
+.circuit-svg .selected-arrow { fill: var(--neon); }
+.circuit-svg .selected-node { stroke: var(--neon); stroke-width: 2.5; }
+.circuit-svg .active-dot { fill: var(--neon); }
+@media (prefers-reduced-motion: no-preference) {
+  .circuit-svg .selected { animation: signal-flow 1s linear infinite; filter: drop-shadow(0 0 3px var(--neon)); }
+  html[data-theme="light"] .circuit-svg .selected { filter: none; }
+}
+@keyframes signal-flow { to { stroke-dashoffset: -24; } }
+.scope-grid { display: grid; gap: 20px; }
+figure { margin: 0; min-width: 0; }
+figcaption { font-size: 0.875rem; margin-bottom: 8px; }
+.screen { position: relative; background: var(--inset); border: 1px solid var(--border); border-radius: 8px; }
+.screen::after {
+  content: ""; pointer-events: none; position: absolute; inset: 0; opacity: 0.1;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, var(--line) 3px, var(--line) 4px);
+}
+.screen svg { display: block; width: 100%; }
+.screen .grid { stroke: var(--line); stroke-width: 1; fill: none; }
+.screen .trace { stroke: var(--phosphor); stroke-width: 2; fill: none; }
+.screen .peak { stroke: var(--neon); stroke-width: 5; }
+.screen .trace-secondary { stroke: var(--neon); stroke-width: 1.5; fill: none; }
+.scope-grid + div { margin-top: 16px; }
+.table-wrap { overflow-x: auto; max-width: 100%; margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+th, td { text-align: left; padding: 10px; border: 1px solid var(--border); }
+th { background: var(--inset); }
+.source-link { display: inline-block; min-height: 44px; padding: 8px 0; }
+details { border-top: 1px solid var(--border); padding: 12px 0; }
+summary { cursor: pointer; min-height: 44px; padding: 8px 0; font-weight: 600; }
+.lesson-body { padding: 12px 0; }
+.evidence { color: var(--phosphor); font-size: 0.875rem; }
+@media (min-width: 700px) { .scope-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) {
+  .screen::after { display: none; }
+  .circuit-svg .selected { filter: none; }
+}

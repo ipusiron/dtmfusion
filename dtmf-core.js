@@ -75,6 +75,46 @@
     return { samples, rate, keys, timeline, settings: o };
   }
   function windowLength(rate) { return Math.round(rateValue(rate) * WINDOW_SECONDS); }
+  function frequencyStatus(deviation, profile = 'NTT') {
+    const p = PROFILES[profile];
+    if (!p || !Number.isFinite(deviation)) throw new RangeError('invalidDeviation');
+    const magnitude = Math.abs(deviation);
+    if (magnitude >= p.reject - 1e-9) return 'outside';
+    return magnitude <= p.accept + 1e-9 ? 'inside' : 'boundary';
+  }
+  function prepareWindow(samples) {
+    const values = new Float64Array(samples.length);
+    let weight = 0;
+    for (let i = 0; i < values.length; i++) {
+      const w = values.length > 1 ? 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (values.length - 1)) : 1;
+      values[i] = samples[i] * w; weight += w;
+    }
+    return frequency => {
+      const coefficient = 2 * Math.cos(frequency);
+      let s1 = 0, s2 = 0;
+      for (const value of values) {
+        const s = value + coefficient * s1 - s2;
+        s2 = s1; s1 = s;
+      }
+      return Math.max(0, s1 * s1 + s2 * s2 - coefficient * s1 * s2) * 4 / (weight * weight);
+    };
+  }
+  function estimateFrequency(powerAt, nominal) {
+    const powers = Array.from({ length: 17 }, (_, i) => powerAt(nominal * (1 + (i - 8) * 0.005)));
+    const peak = powers.indexOf(Math.max(...powers));
+    let shift = 0;
+    if (peak > 0 && peak < 16) {
+      const a = Math.log(Math.max(powers[peak - 1], RECEIVE_POWER_FLOOR));
+      const b = Math.log(Math.max(powers[peak], RECEIVE_POWER_FLOOR));
+      const d = Math.log(Math.max(powers[peak + 1], RECEIVE_POWER_FLOOR));
+      const denominator = a - 2 * b + d;
+      if (denominator < 0) shift = Math.max(-0.5, Math.min(0.5, 0.5 * (a - d) / denominator));
+    }
+    // 0.01 percentage-point reporting resolution avoids overstating an interpolated estimate.
+    const deviation = Math.round(((peak - 8) * 0.5 + shift * 0.5) * 100) / 100;
+    const frequency = nominal * (1 + deviation / 100);
+    return { deviation, frequency, power: powerAt(frequency), edge: peak === 0 || peak === 16 };
+  }
   function goertzel(samples, frequency, rate, hann = true) {
     const n = samples.length;
     if (!n) return 0;
@@ -90,18 +130,26 @@
   function analyze(samples, rate, profile = 'NTT') {
     const p = PROFILES[profile];
     if (!p) throw new RangeError('invalidProfile');
-    const powers = FREQUENCIES.map(f => goertzel(samples, f, rate));
+    const prepared = prepareWindow(samples), powerAt = f => prepared(2 * Math.PI * f / rate);
+    const powers = FREQUENCIES.map(powerAt);
     const rank = start => [0, 1, 2, 3].map(i => i + start).sort((a, b) => powers[b] - powers[a]);
     const l = rank(0), h = rank(4);
-    const ratio = Math.min(powers[l[0]] / Math.max(powers[l[1]], RECEIVE_POWER_FLOOR),
-      powers[h[0]] / Math.max(powers[h[1]], RECEIVE_POWER_FLOOR));
-    const twist = Math.round(100 * Math.log10(Math.max(powers[h[0]], RECEIVE_POWER_FLOOR) /
-      Math.max(powers[l[0]], RECEIVE_POWER_FLOOR))) / 10;
+    const estimates = [estimateFrequency(powerAt, FREQUENCIES[l[0]]), estimateFrequency(powerAt, FREQUENCIES[h[0]])];
+    // Measure the selected tones at their estimated peaks, avoiding off-center attenuation
+    // in both the level comparison and the ratio against the nominal runner-up.
+    const ratio = Math.min(estimates[0].power / Math.max(powers[l[1]], RECEIVE_POWER_FLOOR),
+      estimates[1].power / Math.max(powers[h[1]], RECEIVE_POWER_FLOOR));
+    const twist = Math.round(100 * Math.log10(Math.max(estimates[1].power, RECEIVE_POWER_FLOOR) /
+      Math.max(estimates[0].power, RECEIVE_POWER_FLOOR))) / 10;
+    const deviation = Math.max(...estimates.map(e => Math.abs(e.deviation)));
+    const frequency = frequencyStatus(deviation, profile);
     let reason = 'accepted';
     if (Math.min(powers[l[0]], powers[h[0]]) <= RECEIVE_POWER_FLOOR) reason = 'tooQuiet';
+    else if (frequency === 'outside') reason = 'frequencyOutside';
     else if (ratio < DOMINANCE_RATIO) reason = 'ambiguous';
     else if (twist < p.min || twist > p.max) reason = 'twistOutside';
-    return { key: KEYS[l[0]][h[0] - 4], powers, ratio, twist, reason,
+    else if (frequency === 'boundary') reason = 'frequencyBoundary';
+    return { key: KEYS[l[0]][h[0] - 4], powers, ratio, twist, reason, estimates, deviation,
       confidence: reason === 'accepted' ? Math.min(1, Math.log10(ratio) / 2) : 0 };
   }
   function durationStatus(ms, profile) {
@@ -139,28 +187,47 @@
     let ring = new Float32Array(n), pos = 0, filled = 0, blockCount = 0, blockEnergy = 0;
     let on = 0, gap = 0, elapsed = 0, candidate = null, votes = new Map(), last = null;
     let envelopePeak = 0;
-    let pending = 0, reasons = new Set(), results = [];
+    let pending = 0, reasons = new Set(), results = [], measurements = new Map();
     function finish() {
       if (!on) return;
       let reason = candidate ? candidate.reason : 'tooShort';
+      if (candidate && measurements.has(candidate.key)) {
+        const values = measurements.get(candidate.key);
+        const estimates = candidate.estimates.map((estimate, i) => {
+          const deviation = Math.round(values.sums[i] / values.count * 100) / 100;
+          const nominal = FREQUENCIES[i ? keyInfo(candidate.key).col + 4 : keyInfo(candidate.key).row];
+          return { ...estimate, deviation, frequency: nominal * (1 + deviation / 100) };
+        });
+        candidate = { ...candidate, estimates, deviation: Math.max(...estimates.map(e => Math.abs(e.deviation))) };
+        if (['accepted', 'frequencyBoundary', 'frequencyOutside'].includes(reason)) {
+          const state = frequencyStatus(candidate.deviation, profile);
+          reason = state === 'outside' ? 'frequencyOutside' : state === 'boundary' ? 'frequencyBoundary' : 'accepted';
+          if (state !== 'outside') {
+            if (candidate.ratio < DOMINANCE_RATIO) reason = 'ambiguous';
+            else if (candidate.twist < p.min || candidate.twist > p.max) reason = 'twistOutside';
+          }
+        }
+      }
       const duration = on * 1000 / rate, state = durationStatus(duration, profile);
       if (state === 'outside') reason = 'tooShort';
       else if (state === 'boundary') reason = 'durationBoundary';
       else if (votes.size > 1) reason = 'missingPause';
-      const confidence = candidate ? 1 - (1 - candidate.confidence) ** Math.max(1, votes.get(candidate.key) || 0) : 0;
+      const baseConfidence = candidate && reason === 'accepted' ? Math.min(1, Math.log10(candidate.ratio) / 2) : 0;
+      const confidence = candidate ? 1 - (1 - baseConfidence) ** Math.max(1, votes.get(candidate.key) || 0) : 0;
       if (reason === 'accepted' && confidence < 0.5) reason = 'lowConfidence';
       const symbol = reason === 'accepted' ? candidate.key :
-        ['durationBoundary', 'missingPause', 'lowConfidence'].includes(reason) ? '?' : '';
+        ['durationBoundary', 'frequencyBoundary', 'missingPause', 'lowConfidence'].includes(reason) ? '?' : '';
       results.push({ symbol, key: candidate ? candidate.key : null, reason, duration,
-        confidence, twist: candidate ? candidate.twist : null });
-      on = gap = pending = 0; candidate = null; votes = new Map(); reasons.clear();
+        confidence, twist: candidate ? candidate.twist : null,
+        estimates: candidate ? candidate.estimates : [], deviation: candidate ? candidate.deviation : null });
+      on = gap = pending = 0; candidate = null; votes = new Map(); measurements.clear(); reasons.clear();
     }
     function frame() {
       const energy = blockEnergy / blockCount;
       // Track the local signal envelope so low background noise does not erase pauses.
       // A strong onset discards a preceding unclassified noise burst.
       if (envelopePeak > 0 && energy > envelopePeak * 100 && on && (!candidate || candidate.reason !== 'accepted')) {
-        on = gap = pending = 0; candidate = null; votes.clear();
+        on = gap = pending = 0; candidate = null; votes.clear(); measurements.clear();
       }
       envelopePeak = Math.max(energy, envelopePeak * 0.999);
       const loud = energy > Math.max(RECEIVE_POWER_FLOOR, envelopePeak * 0.01);
@@ -168,10 +235,15 @@
         if (gap && gap * 1000 / rate <= 10 + 1e-7 && profile === 'NTT') on += gap;
         else if (gap) reasons.add('shortPause');
         gap = 0; on += blockCount; pending += blockCount;
-        if (filled === n && pending >= n / 4) {
+        if (filled === n && on >= n && pending >= n / 4) {
           const samples = new Float32Array(n);
           samples.set(ring.subarray(pos)); samples.set(ring.subarray(0, pos), n - pos);
           last = analyze(samples, rate, profile); samples.fill(0); pending = 0;
+          if (['accepted', 'frequencyBoundary', 'frequencyOutside'].includes(last.reason)) {
+            const measurement = measurements.get(last.key) || { sums: [0, 0], count: 0 };
+            last.estimates.forEach((estimate, i) => { measurement.sums[i] += estimate.deviation; });
+            measurement.count++; measurements.set(last.key, measurement);
+          }
           if (last.reason === 'accepted') votes.set(last.key, (votes.get(last.key) || 0) + 1);
           if (!candidate || (last.reason === 'accepted' && candidate.reason !== 'accepted') || last.ratio > candidate.ratio) {
             candidate = last;
@@ -276,5 +348,6 @@
 
   return Object.freeze({ LOW, HIGH, KEYS, IC, DIVISORS, FREQUENCIES, MAX_GAIN, RECEIVE_POWER_FLOOR,
     DOMINANCE_RATIO, WINDOW_SECONDS, PROFILES, rateValue, sanitize, keyInfo, options, actualFrequencies,
-    toneSamples, sequence, windowLength, goertzel, analyze, durationStatus, standards, createDecoder, decode, MAX_WAV_BYTES, decodeWav, encodeWav });
+    toneSamples, sequence, windowLength, goertzel, analyze, frequencyStatus, estimateFrequency, durationStatus, standards,
+    createDecoder, decode, MAX_WAV_BYTES, decodeWav, encodeWav });
 }));

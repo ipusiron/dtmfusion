@@ -49,7 +49,17 @@
       </div>
       <div class="settings-grid" id="settings"></div>
       <h3 data-i18n="limits"></h3><p class="muted" data-i18n="standardHint"></p><div id="standards" class="standards"></div></section>
-    <section class="panel" id="scope"><h2 data-i18n="scope"></h2></section>
+    <section class="panel" id="scope"><h2 data-i18n="scope"></h2>
+      <p class="muted" data-i18n="scopeHelp"></p><p id="scope-key" class="eyebrow"></p>
+      <div class="scope-grid"><figure><figcaption data-i18n="waveTitle"></figcaption>
+        <div class="screen"><svg id="waveform" viewBox="0 0 520 200" role="img" data-label="waveTitle"></svg></div>
+        <p class="muted">0–12 ms / ±0.251</p></figure>
+        <figure><figcaption data-i18n="spectrumTitle"></figcaption>
+          <div class="screen"><svg id="spectrum" viewBox="0 0 520 200" role="img" data-label="spectrumTitle"></svg></div>
+          <p class="muted">600–1750 Hz / 0–100%</p></figure></div>
+      <div id="ic-zoom" hidden><p data-i18n="zoom"></p><div class="screen">
+        <svg id="staircase" viewBox="0 0 800 180" role="img" data-label="zoom"></svg></div></div>
+      <p class="muted" data-i18n="preview"></p></section>
     <section class="panel" id="receiver"><h2 data-i18n="decode"></h2>
       <label for="profile" data-i18n="profile"></label><select id="profile"><option value="NTT">NTT</option><option value="ATT">AT&amp;T</option></select>
       <div class="actions"><button id="direct" class="primary" data-i18n="direct"></button></div><p class="muted" data-i18n="directHint"></p>
@@ -60,13 +70,14 @@
       <p id="status" role="status"></p><h3 data-i18n="restored"></h3><output id="decoded" class="decoded" aria-live="polite">—</output>
       <p class="muted" data-i18n="resultHint"></p><ol id="decisions"></ol><div id="powers" class="powers"></div>
       <button id="clear" data-i18n="clear"></button></section>
-    <section class="panel" id="lessons"><h2 data-i18n="learn"></h2></section>
+    <section class="panel" id="lessons"><h2 data-i18n="learn"></h2><div id="lesson-content"></div></section>
   </main>
   <footer><p data-i18n="privacy"></p><p data-i18n="author"></p>
     <a href="https://github.com/ipusiron/dtmfusion" target="_blank" rel="noopener noreferrer">GitHub / MIT License</a>
   </footer>
   <dialog id="help-dialog" aria-labelledby="help-title"><h2 id="help-title" data-i18n="help"></h2>
-    <p data-i18n="helpBody"></p><p data-i18n="privacy"></p><button id="close-help" data-i18n="close" type="button"></button>
+    <p data-i18n="helpBody"></p><p data-i18n="frequencyRule"></p><p data-i18n="decoderLimits"></p>
+    <p data-i18n="privacy"></p><button id="close-help" data-i18n="close" type="button"></button>
   </dialog>
 </body>
 </html>

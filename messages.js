@@ -6,6 +6,101 @@
   'use strict';
   return {
     ja: {
+      "row": "行 / 低群",
+      "col": "列 / 高群",
+      "oscLow": "低群発振器",
+      "oscHigh": "高群発振器",
+      "counter": "プログラマブル",
+      "counter2": "カウンター",
+      "dac": "容量比D/A",
+      "steps": "1周期28段",
+      "mixer": "Σ ミキサー",
+      "out": "出力",
+      "emitter": "エミッターフォロワ",
+      "crystal": "水晶 3.579545 MHz",
+      "idealNote": "選んだ行と列の2音を足します。太い破線と●が選択中の経路です。",
+      "icNote": "TP5089の機能構成を簡略化した図です。行・列の1本ずつをVSSに下げると発振を開始します。音は表Iの周波数・28段の階段波、高群+2.7dBを初期値にします。",
+      "estimate": "分周比Nは計算による推定です。3579545÷(28×N)。852.4Hzに対して計算値は852.27Hzです。",
+      "icModel": "階段波は28等分した正弦波の教育用モデルです。ICの素子値・歪み・電圧・過渡応答を再現したものではありません。",
+      "waveTitle": "2音の和 / 時間波形",
+      "spectrumTitle": "8つの周波数 / スペクトル",
+      "preview": "停止中は最後に選んだキーのプレビューです。",
+      "zoom": "IC世代の拡大：低群1周期、28段",
+      "scopeHelp": "実際に生成するサンプルから描画しています。横軸は時間と周波数、縦軸は振幅と相対パワーです。",
+      "lesson1": "1. 1つのキー、2つの音",
+      "lesson2": "2. 周波数を選んだ理由と規格",
+      "lesson3": "3. ICと電話機の歴史",
+      "lesson4": "4. Goertzel法で8本だけを見る",
+      "lesson5": "5. 録音に残る番号と対策",
+      "lesson6": "6. 関連ツール",
+      "primary": "一次資料",
+      "estimateLabel": "計算による推定",
+      "secondary": "二次資料",
+      "paper": "一次資料（技術誌）",
+      "industry": "業界標準団体 / 2018年版",
+      "lesson1Text": "たとえば5は770Hzと1336Hzの和です。ITU-T Q.23の2(1/4)符号は、4つの低群から1つ、4つの高群から1つを選び、16の信号を表します。音を分ければ、行と列から" +
+        "キーが戻ります。",
+      "lesson2Text": "Schenkerの1960年の論文では、母音に含まれる倍音の比を避けて、声を信号と誤認するトーク・オフを減らす考え方を説明しています。隣り合う周波数の比は21:19、群の間は1.5" +
+        "倍です。1960年案の高群は1094・1209・1336・1477Hzで、1633Hzは含まれません。",
+      "ratioHeader": "避ける倍音の比",
+      "ratioValue": "1:2 / 2:3 / 3:4 / 3:5 / 4:5 / 5:6",
+      "standardsText": "送出と受信、事業者ごとの数値を分けて読みます。40ms／23msはQ.24表A-1のAT&T列の値です。NTT列は40ms／24msです。",
+      "source": "出典",
+      "freqHeader": "周波数偏差",
+      "timeHeader": "音の長さ・休止・周期",
+      "twistHeader": "高群−低群",
+      "q23Freq": "±1.8%以内",
+      "q23Time": "時間・休止・周期の規定なし",
+      "q23Twist": "レベルは標準化しない",
+      "nttFreq": "≤1.8%動作 / ≥3.0%不動作",
+      "nttTime": "≥40ms動作・≤24ms不動作 / 休止≥30ms / 周期≥120ms",
+      "attFreq": "≤1.5%動作 / ≥3.5%不動作",
+      "attTime": "≥40ms動作・≤23ms不動作 / 休止≥40ms / 93ms/桁",
+      "jpFreq": "±1.5%以内（高群3列）",
+      "jpTime": "音≥50ms / 休止≥30ms / 周期≥120ms",
+      "jpTwist": "0〜+5dB",
+      "lesson3Text": "TP5089は水晶を基準にプログラマブルカウンターで周波数を作り、容量比D/Aを1周期28段で進めます。2音をミキサーで足し、エミッターフォロワから出力します。高群のプリエンファシ" +
+        "スは最小2.2・標準2.7・最大3.2dBです。",
+      "icTable": "公称 / 表Iの実周波数 / 推定N / 計算周波数",
+      "nominal": "公称Hz",
+      "tableI": "表I Hz",
+      "divider": "推定N",
+      "calculated": "計算Hz",
+      "autovonText": "1968年のBell Labs Recordの記事にはAUTOVON電話機のFO・F・I・Pという4つの優先度ボタンがあります。この記事には1633Hzとの対応の記述がありません。" +
+        "1633Hz列に対応するとされる説明は二次資料です。",
+      "priority": "優先度",
+      "noButton": "Routine（ボタンなし）",
+      "lesson4Text": "Goertzel法は指定した周波数のパワーを求めます。8本から候補を選び、推定したピークのパワーが公称周波数の2位の6倍以上あるかを調べます。係数は周波数ちょうどで求め、整数ビンに丸めません。Ha" +
+        "nn窓25.6msの間隔1/Tは約39.1Hzです。実際の分離能力は窓形状と信号にも左右されます。",
+      "decoderLimits": "長さ40ms以上で認め、NTTの24ms以下・AT&Tの23ms以下は認めません。その間は ? です。休止はNTT 30ms・AT&T 40ms、NTTでは10ms以下の瞬断をつな" +
+        "ぎます。測ったレベル差は0.1dB単位で判定します。受信の周期条件は直接検査しません。",
+      "frequencyRule": "各群の候補の公称周波数±4%を0.5%刻みの17点で測り、ピーク位置を補間します。同じキーの複数窓を平均し、推定偏差を0.01%単位で判定します。" +
+        "NTTは1.8%超〜3.0%未満、AT&Tは1.5%超〜3.5%未満を境界として ? を表示し、それ以上は周波数ずれとして認めません。",
+      "decoderCaveat": "この教材は規格準拠の受信機ではありません。偏差は有限長の音からの推定です。" +
+        "確信度は統計的な正解確率ではありません。声の誤認を減らす2倍音の点検は未実装です。",
+      "frequencyOutside": "周波数ずれ",
+      "frequencyBoundary": "周波数ずれ：境界",
+      "estimatedDeviation": "推定偏差（低群 / 高群）",
+      "rateHeader": "サンプルレート",
+      "windowHeader": "窓長N",
+      "resolutionHeader": "1/T",
+      "lesson5Text": "録音にDTMFが残ると、音の組から入力した番号が戻ることがあります。これは音に情報が残る側波路の例です。PCI SSCの2018年版v3.0では、機微な認証データ（SAD）はオーソ" +
+        "リ後に保存できないと説明しています。カード番号全般をSADと呼んでいるわけではありません。",
+      "paymentText": "2018年版では、置換していないDTMFから番号を復元できるため、対象範囲として扱います。suppressionは音の除去、maskingはフラット音・ランダム音への置換です。オペ" +
+        "レーター側に音が漏れるDTMF bleedにも注意を促しています。ここでは2018年版の内容を紹介します。",
+      "method": "方法",
+      "effect": "音の扱い",
+      "suppression": "DTMF成分を除去",
+      "masking": "別の音に置換",
+      "pauseRecording": "録音の一時停止",
+      "exclude": "入力中の音を録音に含めない",
+      "relatedText": "2音の組で1記号を表すDTMFと、2トーンで1バイトを表すDay120は、信号を組み合わせる発想が共通しています。",
+      "relatedName": "ツール",
+      "relatedRole": "比べる点",
+      "day120Role": "2トーンで1バイト。音で文字列を送る実験",
+      "day041Role": "マイク入力の帯域とレベルの監視",
+      "viewSource": "出典を開く",
+      "currentPreview": "キー",
       "layer": "回路の層",
       "ideal": "ブロック図 / 理想波形",
       "ic": "IC世代 / TP5089",
@@ -91,6 +186,121 @@
       ready: '準備完了', skeleton: '計算部と画面の準備ができました。'
     },
     en: {
+      "row": "Row / low group",
+      "col": "Column / high group",
+      "oscLow": "Low oscillator",
+      "oscHigh": "High oscillator",
+      "counter": "Programmable",
+      "counter2": "counter",
+      "dac": "Ratioed-cap. D/A",
+      "steps": "28 steps / cycle",
+      "mixer": "Σ Mixer",
+      "out": "Output",
+      "emitter": "Emitter follower",
+      "crystal": "Crystal 3.579545 MHz",
+      "idealNote": "Sum the two tones selected by the row and column. Thick dashed lines and ● mark the active" +
+        " path.",
+      "icNote": "Simplified TP5089 functional diagram. Pulling one row and one column to VSS starts oscilla" +
+        "tion. Audio uses Table I frequencies, 28 steps, and an initial high-group level of +2.7 dB" +
+        ".",
+      "estimate": "Divider N is a calculation-based estimate: 3579545÷(28×N). The calculated 852.27 Hz differ" +
+        "s from Table I’s 852.4 Hz.",
+      "icModel": "The staircase is an educational sine model sampled at 28 equal phase steps. It does not re" +
+        "produce component values, distortion, voltages or transients.",
+      "waveTitle": "Sum of two tones / waveform",
+      "spectrumTitle": "Eight frequencies / spectrum",
+      "preview": "When stopped, preview the last selected key.",
+      "zoom": "IC close-up: one low-group cycle, 28 steps",
+      "scopeHelp": "Drawn from generated samples. Axes show time and frequency, amplitude and relative power.",
+      "lesson1": "1. One key, two tones",
+      "lesson2": "2. Frequency choices and standards",
+      "lesson3": "3. IC and telephone history",
+      "lesson4": "4. Goertzel: inspect just eight frequencies",
+      "lesson5": "5. Digits in recordings and countermeasures",
+      "lesson6": "6. Related tools",
+      "primary": "Primary source",
+      "estimateLabel": "Calculation-based estimate",
+      "secondary": "Secondary source",
+      "paper": "Primary source (technical journal)",
+      "industry": "Industry standards body / 2018 edition",
+      "lesson1Text": "For example, 5 is 770 Hz plus 1336 Hz. The ITU-T Q.23 2(1/4) code selects one of four low " +
+        "tones and one of four high tones, representing 16 signals. Separating the tones recovers t" +
+        "he row, column and key.",
+      "lesson2Text": "Schenker’s 1960 paper describes avoiding vowel harmonic ratios to reduce voice-triggered f" +
+        "alse detection (talk-off). Adjacent frequencies have a 21:19 ratio; the groups are separat" +
+        "ed by a factor of 1.5. The 1960 high group was 1094, 1209, 1336 and 1477 Hz; it did not in" +
+        "clude 1633 Hz.",
+      "ratioHeader": "Harmonic ratios to avoid",
+      "ratioValue": "1:2 / 2:3 / 3:4 / 3:5 / 4:5 / 5:6",
+      "standardsText": "Read sending and receiving values separately for each source. The 40 ms / 23 ms pair belon" +
+        "gs to AT&T in Q.24 Table A-1. NTT uses 40 ms / 24 ms.",
+      "source": "Source",
+      "freqHeader": "Frequency deviation",
+      "timeHeader": "Tone / pause / cycle",
+      "twistHeader": "High − low level",
+      "q23Freq": "Within ±1.8%",
+      "q23Time": "No tone, pause or cycle limits",
+      "q23Twist": "Levels not standardized",
+      "nttFreq": "≤1.8% operate / ≥3.0% non-operate",
+      "nttTime": "≥40 ms operate, ≤24 ms non-operate / pause ≥30 ms / cycle ≥120 ms",
+      "attFreq": "≤1.5% operate / ≥3.5% non-operate",
+      "attTime": "≥40 ms operate, ≤23 ms non-operate / pause ≥40 ms / 93 ms per digit",
+      "jpFreq": "Within ±1.5% (three high columns)",
+      "jpTime": "Tone ≥50 ms / pause ≥30 ms / cycle ≥120 ms",
+      "jpTwist": "0 to +5 dB",
+      "lesson3Text": "The TP5089 derives frequencies from a crystal using programmable counters. Ratioed-capacit" +
+        "or D/A converters advance through 28 steps per cycle. A mixer sums the tones; an emitter f" +
+        "ollower drives the output. High-group pre-emphasis is 2.2 / 2.7 / 3.2 dB (minimum / typica" +
+        "l / maximum).",
+      "icTable": "Nominal / Table I actual / estimated N / calculated frequency",
+      "nominal": "Nominal Hz",
+      "tableI": "Table I Hz",
+      "divider": "Estimated N",
+      "calculated": "Calculated Hz",
+      "autovonText": "The 1968 Bell Labs Record article shows four AUTOVON priority buttons: FO, F, I and P. It " +
+        "does not state a 1633 Hz mapping. Their correspondence to the 1633 Hz column is reported b" +
+        "y secondary sources.",
+      "priority": "Priority",
+      "noButton": "Routine (no button)",
+      "lesson4Text": "Goertzel measures power at selected frequencies. Select candidates from eight nominal frequencies, then require " +
+        "each estimated peak power to be at least six times the nominal runner-up. Coefficients use exact freque" +
+        "ncies, not rounded bins. A 25.6 ms Hann window gives 1/T ≈39.1 Hz; actual resolution also " +
+        "depends on the window and signal.",
+      "decoderLimits": "Tones ≥40 ms are accepted; NTT ≤24 ms and AT&T ≤23 ms are rejected; between them, display " +
+        "?. Pauses are 30 ms for NTT and 40 ms for AT&T. NTT bridges interruptions ≤10 ms. Estimate" +
+        "d level difference is rounded to 0.1 dB. The decoder does not directly test cycle time.",
+      "frequencyRule": "For each candidate, scan 17 points over nominal ±4% in 0.5% steps, then interpolate the peak. " +
+        "Average windows for the same key and round deviations to 0.01%. NTT: above 1.8% and below 3.0% is a boundary (?); " +
+        "AT&T: above 1.5% and " +
+        "below 3.5% is a boundary (?). At or beyond the respective rejection limit, reject for frequency offset.",
+      "decoderCaveat": "This teaching receiver is not standards-compliant. Deviation is estimated from a finite window. " +
+        "Confidence is not a statistical probability of correctness. Second-harmonic checks to reduce voice false positives are not implemented.",
+      "frequencyOutside": "Frequency offset",
+      "frequencyBoundary": "Frequency offset: boundary",
+      "estimatedDeviation": "Estimated deviation (low / high)",
+      "rateHeader": "Sample rate",
+      "windowHeader": "Window N",
+      "resolutionHeader": "1/T",
+      "lesson5Text": "When DTMF remains in a recording, the tone pair may reveal entered digits: an example of a" +
+        "n acoustic side channel. PCI SSC v3.0 (2018) describes sensitive authentication data (SAD)" +
+        " as prohibited from storage after authorization. Not all card numbers are SAD.",
+      "paymentText": "The 2018 edition treats unmasked DTMF as in scope because digits can be recovered. Suppres" +
+        "sion removes tones; masking replaces them with a flat or random sound. It also warns about" +
+        " DTMF bleed reaching the operator. This section describes the 2018 edition.",
+      "method": "Method",
+      "effect": "Treatment of audio",
+      "suppression": "Remove DTMF components",
+      "masking": "Replace with other sounds",
+      "pauseRecording": "Pause recording",
+      "exclude": "Exclude audio during entry",
+      "relatedText": "DTMF represents one symbol with a tone pair; Day120 represents one byte with two tones. Bo" +
+        "th combine signals to encode information.",
+      "relatedName": "Tool",
+      "relatedRole": "What to compare",
+      "day120Role": "Two tones per byte; send text through sound",
+      "day041Role": "Monitor microphone input bands and levels",
+      "viewSource": "Open source",
+      "currentPreview": "Key",
       "layer": "Circuit layer",
       "ideal": "Block diagram / ideal tones",
       "ic": "IC generation / TP5089",
