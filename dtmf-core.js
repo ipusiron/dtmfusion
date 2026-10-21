@@ -62,6 +62,41 @@
     out[0] = 0; out[count - 1] = 0;
     return out;
   }
+  // Cooperative preparation: each yield limits work to 4096 search/sample steps.
+  // No envelope inside the loop: the AudioParam ramps only at press/release.
+  function* holdTone(key, rate, input = {}) {
+    rateValue(rate);
+    const o = options(input), [lo, hi] = actualFrequencies(key, o);
+    const ratio = 10 ** (o.twist / 20), low = MAX_GAIN / (1 + ratio);
+    const wave = phase => Math.sin(2 * Math.PI * (o.mode === 'ic' ? Math.floor((phase % 1) * 28) / 28 : phase));
+    const sample = i => Math.fround(low * (wave(lo * i / rate) + ratio * wave(hi * i / rate)));
+    // These samples occur inside every allowed loop; their largest step is a safe join limit.
+    let joinLimit = 0, previous = sample(0);
+    for (let i = 1; i < 1024; i++) {
+      const value = sample(i); joinLimit = Math.max(joinLimit, Math.abs(value - previous)); previous = value;
+    }
+    let count = rate, error = Infinity;
+    if (o.mode !== 'ideal' || o.offset !== 0) {
+      for (let n = Math.ceil(rate * 0.5); n <= rate * 2; n++) {
+        const a = lo * n / rate, b = hi * n / rate;
+        const score = (a - Math.round(a)) ** 2 + (b - Math.round(b)) ** 2;
+        if (score < error && Math.abs(sample(n - 1)) <= joinLimit) { error = score; count = n; }
+        if (n % 4096 === 0) yield;
+      }
+    }
+    const samples = new Float32Array(count);
+    let maxStep = 0;
+    for (let i = 0; i < count; i++) {
+      samples[i] = sample(i);
+      if (i) maxStep = Math.max(maxStep, Math.abs(samples[i] - samples[i - 1]));
+      if (i % 4096 === 4095) yield;
+    }
+    const seam = Math.abs(samples[0] - samples[count - 1]);
+    // A programming error must not silently introduce a larger discontinuity.
+    if (seam > maxStep + 1e-7) throw new Error('invalidLoop');
+    return { samples, seconds: count / rate, seam, maxStep,
+      phaseErrors: [lo, hi].map(f => f * count / rate - Math.round(f * count / rate)) };
+  }
   function sequence(value, rate = 48000, input = {}) {
     rateValue(rate);
     const keys = sanitize(value), o = options(input);
@@ -348,6 +383,6 @@
 
   return Object.freeze({ LOW, HIGH, KEYS, IC, DIVISORS, FREQUENCIES, MAX_GAIN, RECEIVE_POWER_FLOOR,
     DOMINANCE_RATIO, WINDOW_SECONDS, PROFILES, rateValue, sanitize, keyInfo, options, actualFrequencies,
-    toneSamples, sequence, windowLength, goertzel, analyze, frequencyStatus, estimateFrequency, durationStatus, standards,
+    toneSamples, holdTone, sequence, windowLength, goertzel, analyze, frequencyStatus, estimateFrequency, durationStatus, standards,
     createDecoder, decode, MAX_WAV_BYTES, decodeWav, encodeWav });
 }));

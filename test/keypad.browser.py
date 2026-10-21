@@ -58,6 +58,19 @@ def press_and_check(page, key):
     assert page.locator('#keypad-wires .is-active, .matrix-intersection').count() == 0
 
 
+def geometry(page):
+    return page.evaluate('''() => [...document.querySelectorAll(
+      '#keypad button, #keypad-shell, .matrix-hint, .sequence-controls')].map(e => {
+        const r=e.getBoundingClientRect();
+        return [r.x+scrollX, r.y+scrollY, r.width, r.height];
+      })''')
+
+
+def same_geometry(before, after):
+    assert len(before) == len(after) == 19
+    assert max(abs(a-b) for ra,rb in zip(before,after) for a,b in zip(ra,rb)) <= 0.5, (before, after)
+
+
 server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT)))
 Thread(target=server.serve_forever, daemon=True).start()
 results = []
@@ -94,8 +107,10 @@ try:
                                     }''', offset)
                                     check_matrix(page, layer, offset)
                                 toggle = page.locator('#xray-toggle')
+                                before = geometry(page)
                                 toggle.focus()
                                 page.keyboard.press('Space')
+                                same_geometry(before, geometry(page))
                                 assert toggle.get_attribute('aria-pressed') == 'false'
                                 assert not page.locator('#keypad-wires').is_visible()
                                 assert toggle.evaluate('(e) => e===document.activeElement')
@@ -104,7 +119,15 @@ try:
                                 assert page.locator('[data-path="row-1"].selected').count() == 1
                                 page.keyboard.up('5')
                                 toggle.click()
+                                same_geometry(before, geometry(page))
                                 assert toggle.get_attribute('aria-pressed') == 'true'
+                                page.keyboard.down('5')
+                                pressed = geometry(page)
+                                toggle.evaluate('(e) => e.click()')
+                                same_geometry(pressed, geometry(page))
+                                toggle.evaluate('(e) => e.click()')
+                                same_geometry(pressed, geometry(page))
+                                page.keyboard.up('5')
                                 check_matrix(page, layer)
                                 assert page.evaluate('() => document.documentElement.scrollWidth <= innerWidth')
                                 if engine.name == 'chromium' and scheme == 'http' and layer == 'ic':
