@@ -10,6 +10,7 @@
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
   <script src="dtmf-core.js" defer></script>
+  <script src="audio-io.js" defer></script>
   <script src="messages.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -27,9 +28,38 @@
   <noscript><p>JavaScriptを有効にしてください。 / Enable JavaScript.</p></noscript>
   <main>
     <aside class="notice"><strong data-i18n="before"></strong><p data-i18n="caution"></p></aside>
-    <section class="panel" id="instrument"><h2 data-i18n="keypad"></h2><p data-i18n="skeleton"></p></section>
+    <section class="panel" id="instrument"><h2 data-i18n="keypad"></h2>
+      <div class="instrument-grid">
+        <div class="key-station">
+          <div class="readout"><output id="active-key">—</output><span id="active-frequency">697 + 1209 Hz</span></div>
+          <div id="keypad" class="keypad" aria-label="DTMF"></div>
+          <p class="muted" data-i18n="holdHint"></p>
+        </div>
+        <div class="circuit-station">
+          <label for="layer" data-i18n="layer"></label>
+          <select id="layer"><option value="ideal" data-i18n="ideal"></option><option value="ic" data-i18n="ic"></option></select>
+          <div id="circuit"></div><p id="circuit-note" class="muted"></p>
+        </div>
+      </div>
+      <div class="sequence-controls"><label for="number" data-i18n="sequence"></label>
+        <input id="number" value="123A456B789C*0#D" maxlength="32" autocomplete="off" spellcheck="false" autocapitalize="characters">
+        <p class="muted" data-i18n="inputHint"></p>
+        <div class="actions"><button id="play" class="primary" data-i18n="play"></button>
+          <button id="stop" data-i18n="stop"></button><button id="export" data-i18n="export"></button></div>
+      </div>
+      <div class="settings-grid" id="settings"></div>
+      <h3 data-i18n="limits"></h3><p class="muted" data-i18n="standardHint"></p><div id="standards" class="standards"></div></section>
     <section class="panel" id="scope"><h2 data-i18n="scope"></h2></section>
-    <section class="panel" id="receiver"><h2 data-i18n="decode"></h2><p id="status" role="status" data-i18n="ready"></p></section>
+    <section class="panel" id="receiver"><h2 data-i18n="decode"></h2>
+      <label for="profile" data-i18n="profile"></label><select id="profile"><option value="NTT">NTT</option><option value="ATT">AT&amp;T</option></select>
+      <div class="actions"><button id="direct" class="primary" data-i18n="direct"></button></div><p class="muted" data-i18n="directHint"></p>
+      <label for="wav" data-i18n="wav"></label><input id="wav" type="file" accept=".wav,audio/wav">
+      <p class="muted" data-i18n="wavHint"></p>
+      <div class="actions"><button id="mic" data-i18n="mic"></button><button id="mic-stop" data-i18n="micStop"></button></div>
+      <p class="muted" data-i18n="micNote"></p><p id="environment" class="muted"></p>
+      <p id="status" role="status"></p><h3 data-i18n="restored"></h3><output id="decoded" class="decoded" aria-live="polite">—</output>
+      <p class="muted" data-i18n="resultHint"></p><ol id="decisions"></ol><div id="powers" class="powers"></div>
+      <button id="clear" data-i18n="clear"></button></section>
     <section class="panel" id="lessons"><h2 data-i18n="learn"></h2></section>
   </main>
   <footer><p data-i18n="privacy"></p><p data-i18n="author"></p>

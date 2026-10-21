@@ -115,3 +115,15 @@ test('C3 divider estimates are distinct from Table I frequencies', () => {
   assert.equal(c.options({ mode: 'ic' }).twist, 2.7);
   assert.equal(c.windowLength(8000), 205); assert.equal(c.windowLength(48000), 1229);
 });
+
+test('C low background noise still permits pauses, without accepting short tones', () => {
+  for (const profile of ['NTT', 'ATT']) for (const amplitude of [0.0001, 0.001, 0.005]) {
+    const wave = c.sequence('123', 48000).samples;
+    let seed = 3;
+    for (let i = 0; i < wave.length; i++) {
+      seed = (1664525 * seed + 1013904223) >>> 0;
+      wave[i] += (seed / 2 ** 32 - 0.5) * amplitude;
+    }
+    assert.equal(c.decode(wave, 48000, profile).text, '123');
+  }
+});

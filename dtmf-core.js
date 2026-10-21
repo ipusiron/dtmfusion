@@ -138,6 +138,7 @@
     const n = windowLength(rate), hop = Math.max(1, Math.round(rate / 1000));
     let ring = new Float32Array(n), pos = 0, filled = 0, blockCount = 0, blockEnergy = 0;
     let on = 0, gap = 0, elapsed = 0, candidate = null, votes = new Map(), last = null;
+    let envelopePeak = 0;
     let pending = 0, reasons = new Set(), results = [];
     function finish() {
       if (!on) return;
@@ -155,7 +156,14 @@
       on = gap = pending = 0; candidate = null; votes = new Map(); reasons.clear();
     }
     function frame() {
-      const loud = blockEnergy / blockCount > RECEIVE_POWER_FLOOR;
+      const energy = blockEnergy / blockCount;
+      // Track the local signal envelope so low background noise does not erase pauses.
+      // A strong onset discards a preceding unclassified noise burst.
+      if (envelopePeak > 0 && energy > envelopePeak * 100 && on && (!candidate || candidate.reason !== 'accepted')) {
+        on = gap = pending = 0; candidate = null; votes.clear();
+      }
+      envelopePeak = Math.max(energy, envelopePeak * 0.999);
+      const loud = energy > Math.max(RECEIVE_POWER_FLOOR, envelopePeak * 0.01);
       if (loud) {
         if (gap && gap * 1000 / rate <= 10 + 1e-7 && profile === 'NTT') on += gap;
         else if (gap) reasons.add('shortPause');
@@ -197,7 +205,76 @@
     decoder.push(samples);
     return decoder.flush();
   }
+  const MAX_WAV_BYTES = 24 * 1024 * 1024;
+  function decodeWav(buffer) {
+    if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 44 || buffer.byteLength > MAX_WAV_BYTES) {
+      throw new RangeError('invalidWav');
+    }
+    const view = new DataView(buffer);
+    const tag = at => String.fromCharCode(...new Uint8Array(buffer, at, 4));
+    if (tag(0) !== 'RIFF' || tag(8) !== 'WAVE' || view.getUint32(4, true) + 8 !== buffer.byteLength) {
+      throw new RangeError('invalidWav');
+    }
+    let format = null, data = null;
+    for (let at = 12; at + 8 <= buffer.byteLength;) {
+      const name = tag(at), length = view.getUint32(at + 4, true), start = at + 8, end = start + length;
+      if (end > buffer.byteLength) throw new RangeError('invalidWav');
+      if (name === 'fmt ') {
+        if (length < 16 || format) throw new RangeError('invalidWav');
+        format = { code: view.getUint16(start, true), channels: view.getUint16(start + 2, true),
+          rate: view.getUint32(start + 4, true), byteRate: view.getUint32(start + 8, true),
+          align: view.getUint16(start + 12, true), bits: view.getUint16(start + 14, true) };
+      }
+      if (name === 'data') {
+        if (data) throw new RangeError('invalidWav');
+        data = { start, length };
+      }
+      at = end + length % 2;
+    }
+    if (!format || !data) throw new RangeError('invalidWav');
+    const { code, channels, rate, byteRate, align, bits } = format;
+    const valid = (code === 1 && [16, 24, 32].includes(bits)) || (code === 3 && bits === 32);
+    if (!valid || ![1, 2].includes(channels) || rate < 8000 || rate > 96000 ||
+        align !== channels * bits / 8 || byteRate !== rate * align || data.length % align) throw new RangeError('invalidWav');
+    const count = data.length / align;
+    if (count < 1 || count > rate * 60) throw new RangeError('wavDuration');
+    const samples = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      let sum = 0;
+      for (let channel = 0; channel < channels; channel++) {
+        const at = data.start + i * align + channel * bits / 8;
+        let value;
+        if (code === 3) value = view.getFloat32(at, true);
+        else if (bits === 16) value = view.getInt16(at, true) / 32768;
+        else if (bits === 24) {
+          const raw = view.getUint8(at) | (view.getUint8(at + 1) << 8) | (view.getUint8(at + 2) << 16);
+          value = ((raw << 8) >> 8) / 8388608;
+        } else value = view.getInt32(at, true) / 2147483648;
+        if (!Number.isFinite(value) || Math.abs(value) > 1) throw new RangeError('invalidWav');
+        sum += value;
+      }
+      samples[i] = sum / channels;
+    }
+    return { samples, rate, channels };
+  }
+
+  function encodeWav(samples, rate) {
+    rateValue(rate);
+    if (!samples.length || samples.length > rate * 60) throw new RangeError('wavDuration');
+    const buffer = new ArrayBuffer(44 + samples.length * 2), v = new DataView(buffer);
+    function tag(at, value) { [...value].forEach((x, i) => v.setUint8(at + i, x.charCodeAt(0))); }
+    tag(0, 'RIFF'); v.setUint32(4, buffer.byteLength - 8, true); tag(8, 'WAVE'); tag(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    tag(36, 'data'); v.setUint32(40, samples.length * 2, true);
+    samples.forEach((x, i) => {
+      if (!Number.isFinite(x) || Math.abs(x) > 1) throw new RangeError('invalidSamples');
+      v.setInt16(44 + i * 2, Math.round(x * (x < 0 ? 32768 : 32767)), true);
+    });
+    return buffer;
+  }
+
   return Object.freeze({ LOW, HIGH, KEYS, IC, DIVISORS, FREQUENCIES, MAX_GAIN, RECEIVE_POWER_FLOOR,
     DOMINANCE_RATIO, WINDOW_SECONDS, PROFILES, rateValue, sanitize, keyInfo, options, actualFrequencies,
-    toneSamples, sequence, windowLength, goertzel, analyze, durationStatus, standards, createDecoder, decode });
+    toneSamples, sequence, windowLength, goertzel, analyze, durationStatus, standards, createDecoder, decode, MAX_WAV_BYTES, decodeWav, encodeWav });
 }));
