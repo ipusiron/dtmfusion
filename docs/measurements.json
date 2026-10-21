@@ -1,0 +1,300 @@
+{
+  "generated": "2026-10-21T05:51:02.924Z",
+  "step": 0.1,
+  "count": 19392,
+  "wrong": 0,
+  "conditions": [
+    {
+      "mode": "ideal",
+      "profile": "NTT",
+      "rate": 8000,
+      "all": [
+        -1.8,
+        1.8
+      ],
+      "any": [
+        -1.8,
+        1.8
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ideal",
+      "profile": "NTT",
+      "rate": 44100,
+      "all": [
+        -1.8,
+        1.8
+      ],
+      "any": [
+        -1.8,
+        1.8
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ideal",
+      "profile": "NTT",
+      "rate": 48000,
+      "all": [
+        -1.8,
+        1.8
+      ],
+      "any": [
+        -1.8,
+        1.8
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ideal",
+      "profile": "ATT",
+      "rate": 8000,
+      "all": [
+        -1.5,
+        1.5
+      ],
+      "any": [
+        -1.5,
+        1.5
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ideal",
+      "profile": "ATT",
+      "rate": 44100,
+      "all": [
+        -1.5,
+        1.5
+      ],
+      "any": [
+        -1.5,
+        1.5
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ideal",
+      "profile": "ATT",
+      "rate": 48000,
+      "all": [
+        -1.5,
+        1.5
+      ],
+      "any": [
+        -1.5,
+        1.5
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ic",
+      "profile": "NTT",
+      "rate": 8000,
+      "all": [
+        -1.4,
+        1.1
+      ],
+      "any": [
+        -1.8,
+        2.1
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ic",
+      "profile": "NTT",
+      "rate": 44100,
+      "all": [
+        -1.4,
+        1.1
+      ],
+      "any": [
+        -1.8,
+        2.1
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ic",
+      "profile": "NTT",
+      "rate": 48000,
+      "all": [
+        -1.4,
+        1.1
+      ],
+      "any": [
+        -1.8,
+        2.1
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ic",
+      "profile": "ATT",
+      "rate": 8000,
+      "all": [
+        -1.1,
+        0.8
+      ],
+      "any": [
+        -1.5,
+        1.8
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ic",
+      "profile": "ATT",
+      "rate": 44100,
+      "all": [
+        -1.1,
+        0.8
+      ],
+      "any": [
+        -1.5,
+        1.8
+      ],
+      "wrong": 0
+    },
+    {
+      "mode": "ic",
+      "profile": "ATT",
+      "rate": 48000,
+      "all": [
+        -1.1,
+        0.8
+      ],
+      "any": [
+        -1.5,
+        1.8
+      ],
+      "wrong": 0
+    }
+  ],
+  "windowTrials": [
+    {
+      "ms": 20,
+      "mode": "ideal",
+      "minimum": 27.112293954041114,
+      "correct": 16
+    },
+    {
+      "ms": 20,
+      "mode": "ic",
+      "minimum": 27.096638541748952,
+      "correct": 16
+    },
+    {
+      "ms": 25.6,
+      "mode": "ideal",
+      "minimum": 1293.560337817859,
+      "correct": 16
+    },
+    {
+      "ms": 25.6,
+      "mode": "ic",
+      "minimum": 1261.379938053562,
+      "correct": 16
+    },
+    {
+      "ms": 32,
+      "mode": "ideal",
+      "minimum": 1413.238897288073,
+      "correct": 16
+    },
+    {
+      "ms": 32,
+      "mode": "ic",
+      "minimum": 1295.6468298621096,
+      "correct": 16
+    }
+  ],
+  "offline": [
+    {
+      "rate": 8000,
+      "mode": "ideal",
+      "profile": "NTT",
+      "N": 205,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 8000,
+      "mode": "ideal",
+      "profile": "ATT",
+      "N": 205,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 8000,
+      "mode": "ic",
+      "profile": "NTT",
+      "N": 205,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 8000,
+      "mode": "ic",
+      "profile": "ATT",
+      "N": 205,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 44100,
+      "mode": "ideal",
+      "profile": "NTT",
+      "N": 1129,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 44100,
+      "mode": "ideal",
+      "profile": "ATT",
+      "N": 1129,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 44100,
+      "mode": "ic",
+      "profile": "NTT",
+      "N": 1129,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 44100,
+      "mode": "ic",
+      "profile": "ATT",
+      "N": 1129,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 48000,
+      "mode": "ideal",
+      "profile": "NTT",
+      "N": 1229,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 48000,
+      "mode": "ideal",
+      "profile": "ATT",
+      "N": 1229,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 48000,
+      "mode": "ic",
+      "profile": "NTT",
+      "N": 1229,
+      "text": "123A456B789C*0#D"
+    },
+    {
+      "rate": 48000,
+      "mode": "ic",
+      "profile": "ATT",
+      "N": 1229,
+      "text": "123A456B789C*0#D"
+    }
+  ]
+}
