@@ -9,6 +9,7 @@
   let statusKey = 'ready', lastPlayed = null, activeKey = null, heldKey = null, micActive = false;
   let previewKey = '5', xray = true;
   let result = null, animation = 0, playTimeline = null, operation = 0;
+  let scopeFrame = 0, scopeTimer = 0, scopeSignature = '', audioEnabled = false;
   const t = key => dictionaries[language][key] || key;
   function save() {
     try { localStorage.setItem('dtmfusion.language', language); localStorage.setItem('dtmfusion.theme', theme); }
@@ -156,6 +157,9 @@
   }
   function drawScope(key) {
     const chosen = key || previewKey, cfg = settings(), rate = 48000;
+    const signature = JSON.stringify([chosen, cfg, language]);
+    if (signature === scopeSignature) return;
+    scopeSignature = signature;
     const samples = core.toneSamples(chosen, rate, { ...cfg, toneMs: 200 });
     const frequencies = core.actualFrequencies(chosen, cfg).map(f => f.toFixed(1)).join(' + ');
     $('scope-key').textContent = `${t('currentPreview')} ${chosen} / ${frequencies} Hz`;
@@ -197,7 +201,12 @@
       const active = el.dataset.key === key;
       el.classList.toggle('active', active); el.setAttribute('aria-pressed', String(active));
     });
-    updateControls(); drawScope(key);
+    updateControls();
+    cancelAnimationFrame(scopeFrame); clearTimeout(scopeTimer);
+    // Let the key and signal path paint before calculating the spectrum preview.
+    scopeFrame = requestAnimationFrame(() => {
+      scopeTimer = setTimeout(() => drawScope(activeKey), 0);
+    });
   }
   function renderResult() {
     $('decoded').textContent = result && result.text || '—';
@@ -288,14 +297,15 @@
       ['Day041 Mic Gain Logger', t('day041Role')]]), sourceLink('day120', 'Day120 Airborne Tone Link', 'primary'),
     sourceLink('day041', 'Day041 Mic Gain Logger', 'primary'));
   }
-  function stopPlayback() {
+  function stopPlayback(clearHighlight = true) {
     operation++; heldKey = null; playTimeline = null;
-    cancelAnimationFrame(animation); audio.stopTone(); highlight(null);
+    cancelAnimationFrame(animation); audio.stopTone();
+    if (clearHighlight) highlight(null);
   }
   function fail(error) { if (error.message !== 'cancelled') showStatus(error.message in dictionaries.en ? error.message : 'noAudio'); }
   async function startHold(key) {
     if (heldKey === key) return;
-    stopPlayback(); heldKey = key; const token = operation;
+    stopPlayback(false); heldKey = key; const token = operation;
     lastPlayed = { keys: key, settings: settings() };
     highlight(key); showStatus('playing');
     try { await audio.hold(key, lastPlayed.settings, () => { stopPlayback(); showStatus('stopped'); }); }
@@ -396,7 +406,7 @@
     const el = node('div'), label = node('label'), output = node('output'), input = node('input');
     label.htmlFor = key; label.dataset.i18n = key; output.id = key + '-value'; output.htmlFor = key;
     Object.assign(input, { id: key, type: 'range', min, max, step, value });
-    input.addEventListener('input', () => { stopPlayback(); updateControls(); });
+    input.addEventListener('input', () => { stopPlayback(); prepareHold(); });
     el.append(label, input, output); $('settings').append(el);
   }
   document.addEventListener('keydown', e => {
@@ -412,8 +422,14 @@
     $('number').value = clean;
   });
   $('layer').addEventListener('change', () => {
-    stopPlayback(); $('twist').value = $('layer').value === 'ic' ? '2.7' : '2'; updateControls(); drawScope();
+    $('twist').value = $('layer').value === 'ic' ? '2.7' : '2'; stopPlayback(); prepareHold();
   });
+  function prepareHold() {
+    if (audioEnabled) audio.prepareHold(settings()).catch(() => { /* Report errors if playback is requested. */ });
+  }
+  function enableAudio() { if (!audioEnabled) { audioEnabled = true; prepareHold(); } }
+  document.addEventListener('pointerdown', enableAudio, { capture: true, once: true });
+  document.addEventListener('keydown', enableAudio, { capture: true, once: true });
   $('xray-toggle').addEventListener('click', () => { xray = !xray; drawKeyMatrix(); });
   $('play').addEventListener('click', play); $('stop').addEventListener('click', stopAll);
   $('direct').addEventListener('click', direct); $('wav').addEventListener('change', readWav);

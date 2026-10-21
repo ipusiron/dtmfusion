@@ -90,11 +90,14 @@ Light versions: [block](assets/block-en-light.png) / [IC](assets/ic-en-light.png
 
 On the first visit, the theme follows the device color preference. A saved theme takes priority over the device setting.
 
+Held keys play a short loop: one second for ideal tones at 0% offset, or 0.5–2 seconds for IC tones and frequency offsets. The chosen length minimizes the two phase errors among joins whose sample discontinuity does not exceed an interior sample step. Preparation runs in small chunks on the first interaction and after settings change; buffers are reused by key, settings, and sample rate. The first press includes audio startup and preparation. Attack/release fades, the −12 dBFS ceiling, and the 60-second automatic stop remain in place.
+
 ## 📐 Screen layout
 
 The page proceeds from key and circuit to waveform/spectrum, decoding, and lessons. On narrow screens the circuit appears below the keypad.
 Use the See through button above the keypad. It starts ON: four horizontal lines represent the low group and four vertical lines the high group.
 Frequency labels follow the ideal/IC layer and frequency offset. OFF restores the normal keypad while the circuit diagram remains visible.
+Both states reserve the frequency-label margins. Toggling preserves all sixteen key positions, dimensions, gaps, and the outer keypad height.
 Waveform and spectrum are previews generated from the selected key and settings, not microphone measurements. The waveform spans 12 ms and the spectrum 600–1750 Hz.
 Use the decoder's power meters and decisions to inspect microphone or WAV analysis.
 Power bars use a fixed −60 to 0 dB range. Below −60 dB the bar is empty; the adjacent numeric dB value is preserved.
@@ -346,6 +349,8 @@ Browser checks cover 96 combinations of HTTP/`file://`, Chromium/Firefox, 320/39
 With Python Playwright and Chromium/Firefox already available, run `python test/keypad.browser.py` to repeat the 96 see-through conditions.
 It checks ON/OFF, all sixteen key intersections, frequency labels and offsets, 44 px targets, and label overlap; results and images go in `.work/`.
 In the same environment, `python test/interface.browser.py` checks device/saved theme priority, blocked storage, and power bars and numeric values.
+
+`python test/response.browser.py` compares all sixteen keys and the keypad shell with see-through ON/OFF at 320, 390, and 1280 px in both themes. Chromium measurements cover pointer-down to audio start and the next frame at normal and 4× CPU slowdown. The first press is reported separately; the next five must each stay within 30 ms / 100 ms respectively. Node tests also check loop seams, gain, buffer reuse, the 60-second stop, and cancellation during preparation.
 OfflineAudioContext covers 12 combinations of three rates, two waveforms, and two profiles. A generated WAV supplied to a fake microphone recovers `123*#`. These are not substitutes for physical acoustic tests.
 
 ## 📁 Directory structure
@@ -390,9 +395,11 @@ dtmfusion/                     # Tool files
 └── test/                      # Node and browser checks
     ├── interface.browser.py   # Initial/saved theme and power display checks
     ├── keypad.browser.py      # See-through controls, labels and intersections
+    ├── response.browser.py    # Stable geometry and key response latency
     ├── core.test.js           # Mapping, synthesis, decoding and limits
     ├── frequency.test.js      # Offset and wrong-key regressions
     ├── audio.test.js          # Audio resource cleanup
+    ├── hold.test.js           # Loop seams, lengths and gain
     ├── wav.test.js            # WAV and invalid input
     ├── structure.test.js      # CSP, dictionaries, colors and format
     └── readme.test.js         # README tables, structure and images
