@@ -88,6 +88,8 @@ Light versions: [block](assets/block-en-light.png) / [IC](assets/ic-en-light.png
 - Estimated frequency offset, `?` for boundaries, rejection reasons, and eight power meters
 - Explicit WAV export, Japanese/English, dark/light themes, and reduced motion
 
+On the first visit, the theme follows the device color preference. A saved theme takes priority over the device setting.
+
 ## 📐 Screen layout
 
 The page proceeds from key and circuit to waveform/spectrum, decoding, and lessons. On narrow screens the circuit appears below the keypad.
@@ -95,6 +97,7 @@ Use the See through button above the keypad. It starts ON: four horizontal lines
 Frequency labels follow the ideal/IC layer and frequency offset. OFF restores the normal keypad while the circuit diagram remains visible.
 Waveform and spectrum are previews generated from the selected key and settings, not microphone measurements. The waveform spans 12 ms and the spectrum 600–1750 Hz.
 Use the decoder's power meters and decisions to inspect microphone or WAV analysis.
+Power bars use a fixed −60 to 0 dB range. Below −60 dB the bar is empty; the adjacent numeric dB value is preserved.
 
 ## 📖 Usage
 
@@ -342,6 +345,7 @@ GitHub Actions checks syntax and all Node.js tests on push and pull_request. Cov
 Browser checks cover 96 combinations of HTTP/`file://`, Chromium/Firefox, 320/390/1280 px, Japanese/English, dark/light, and both circuit layers.
 With Python Playwright and Chromium/Firefox already available, run `python test/keypad.browser.py` to repeat the 96 see-through conditions.
 It checks ON/OFF, all sixteen key intersections, frequency labels and offsets, 44 px targets, and label overlap; results and images go in `.work/`.
+In the same environment, `python test/interface.browser.py` checks device/saved theme priority, blocked storage, and power bars and numeric values.
 OfflineAudioContext covers 12 combinations of three rates, two waveforms, and two profiles. A generated WAV supplied to a fake microphone recovers `123*#`. These are not substitutes for physical acoustic tests.
 
 ## 📁 Directory structure
@@ -352,7 +356,7 @@ dtmfusion/                     # Tool files
 │   └── workflows/             # CI
 │       └── test.yml           # Node 22 syntax and tests
 ├── .gitattributes             # Line-ending rules
-├── .gitignore                 # Excludes work files and backups
+├── .gitignore                 # Excludes Python bytecode caches
 ├── index.html                 # Single-page interface and CSP
 ├── style.css                  # Themes and responsive layout
 ├── messages.js                # Japanese and English text
@@ -384,6 +388,7 @@ dtmfusion/                     # Tool files
 │   ├── lesson-en-dark.png     # Lessons, English, dark
 │   └── lesson-en-light.png    # Lessons, English, light
 └── test/                      # Node and browser checks
+    ├── interface.browser.py   # Initial/saved theme and power display checks
     ├── keypad.browser.py      # See-through controls, labels and intersections
     ├── core.test.js           # Mapping, synthesis, decoding and limits
     ├── frequency.test.js      # Offset and wrong-key regressions

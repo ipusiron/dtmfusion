@@ -18,7 +18,7 @@ The dominance ratio compares estimated peak power with nominal runner-up power; 
 Frequency averages must retain dominance and twist rejection checks.
 
 Use `apply_patch` for source edits. Back up existing files locally before changes.
-`.work/`, `backups/` and `logs/` are ignored. Never publish private recordings or execution logs.
+Never publish private recordings or execution logs.
 Stop on denied operations rather than attempting another write mechanism.
 Preserve the CSP, no inline handlers/styles, no network APIs, and only language/theme preferences.
 Audio samples must use calculated AudioBuffers; no oscillator nodes. Keep combined gain ≤−12dBFS.
