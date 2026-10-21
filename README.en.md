@@ -169,6 +169,121 @@ Regression tests cover the exact operation and rejection limits and adjacent 0.1
 See the [measurement data](docs/measurements.json). Receiver cycle time and second-harmonic checks against voice false positives are not implemented.
 The standards panel calculates from control settings; the decoder estimates from sound. They are separate decisions.
 
+## ☎️ Telephone sets and DTMF
+
+Dial-pulse service represents digits by interrupting line current a counted number of times.
+Push-button signaling uses DTMF: one low-group tone and one high-group tone for each symbol.
+When PB signaling is sent over an analog subscriber line, the tones themselves travel along the line.
+The primary source, [NTT West's technical reference v6.2, Tables 3.3.6 and 3.3.7](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf), specifies DP and PB separately.
+
+Mobile, VoLTE, and IP telephony often carry a digit as an event and regenerate the tone at the receiving side.
+Circuit-switched mobile telephony uses START DTMF / STOP DTMF signaling, while VoLTE MTSI supports RFC 4733 telephone-event.
+These 3GPP descriptions come from copies of [TS 24.008 §5.5.7.2](https://itecspec.com/3gpp/24.008/s/5.5.7.2) and [TS 26.114 Annex G.3](https://itecspec.com/3gpp/26.114/s/g.3), treated here as secondary sources.
+The primary source [RFC 4733 §1.2](https://www.rfc-editor.org/rfc/rfc4733) explains that low-bitrate voice codecs cannot always reproduce DTMF faithfully enough for detection.
+The sound retained in a recording and the digit transported by the network can therefore be different representations.
+
+## 🕰️ History of DTMF
+
+DTMF developed through frequency-code design, telephone-service deployment, and integration into electronic circuits.
+The dates below retain the distinctions between sources and their evidence strength.
+
+| Period | Development and context | Evidence |
+|---|---|---|
+| 1960 | Schenker described a two-group code avoiding vowel harmonic ratios, with adjacent ratio 21:19 and inter-group factor 1.5. Its high group was 1094/1209/1336/1477 Hz, without 1633 Hz. | [Original paper](https://www.repeater-builder.com/tech-info/dtmf/pdfs/bstj-39-01-pages-235-255.pdf): primary source |
+| November 18, 1963 | Commercial Touch-Tone service began in Carnegie and Greensburg, Pennsylvania, with ten-button sets for subscribers paying an additional charge. | [Hagley Museum](https://hagley.org/research/news/hagley-vault/date-november-18-1963-bell-telephone-began-offering-worlds-first): public museum source |
+| Often dated to 1968 | The twelve-button Western Electric 2500 added * and #. Some accounts give 1969, so the year is not treated as settled. | [Push-button telephone](https://en.wikipedia.org/wiki/Push-button_telephone): secondary source |
+| 1968 article | AUTOVON's FO, F, I, and P priority buttons were described. Their association with the 1633 Hz column comes from secondary accounts. | [Bell Labs Record](https://www.telephonecollectors.info/index.php/browse/document-repository/catalogs-manuals/bell-system-we/bell-labs-record/11826-68apr-blr-p106-autovon/file): primary source / [Crypto Museum](https://www.cryptomuseum.com/phone/autovon/index.htm): secondary source for the association |
+| Around 1969 | Japan's 600P Push Phone appeared. Sources describe different milestones such as sales, naming, and mass production; no exact month or day is assigned here. | [NTT East data book](https://www.ntt-east.co.jp/databook/pdf/2024_S4.pdf) and [NTT History Center](https://hct.rd.ntt/panel/pdf/2_F_2_1_1.pdf): primary sources |
+| Dedicated-IC era | The TP5089 uses a crystal reference, counters, ratioed-capacitor converters, and a mixer to generate and combine the tones. | [TP5089 datasheet](https://pf.unikeyic.com/datasheet/43/7d/d1e0/437dd1e00336b1f0b5169f5d864a3432.pdf): primary-source mirror |
+
+The primary source [ITU-T Q.23](https://www.itu.int/rec/T-REC-Q.23-198811-I/en) defines sixteen signals: ten digits and six additional symbols.
+An ordinary twelve-key phone and this tool's sixteen-key matrix including A–D share the same two-group principle.
+
+## 📞 Can DTMF still be used for calls?
+
+DTMF remains in use for telephone operations.
+NTT migrated its fixed-line exchange network to IP in January 2024, but its July 2025 technical reference still specifies reception of both DP and PB at the metallic subscriber interface.
+The internal network's use of IP and the subscriber telephone's signaling method are separate questions.
+Primary sources: [NTT East's IP migration notice](https://www.ntt-east.co.jp/info/detail/231214_01.html) and [NTT West's technical reference v6.2](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf).
+
+After a call connects, automated voice menus still use numbered-button input.
+The [Kyoto Prefectural Police notice](https://www.pref.kyoto.jp/fukei/jidouonsei2.html), a public authority source, describes numbered options and waiting for assistance when using a dial telephone.
+On dial-pulse service, a compatible telephone may send PB after connection by switching to its Tone mode or following the service's instructions.
+Primary-source examples appear in the [Sharp FAQ](https://cs.sharp.co.jp/faq/qa?qid=119212) and [NTT East's 171 guidance](https://www.ntt-east.co.jp/akita/information/detail/pdf/100519.pdf).
+
+The next transition replaces metallic access with fiber-based or wireless fixed-line services.
+The primary-source [NTT West announcement of September 29, 2025](https://www.ntt-west.co.jp/news/2509/250929a.html) describes migration by around 2035.
+Some telephone sets may become unusable with wireless fixed-line service, so continued compatibility must be checked against the destination service's guidance.
+
+## 🧩 Applications
+
+DTMF can convey short symbols to equipment as well as entered telephone digits.
+The evidence differs by application.
+
+| Application | Role of DTMF | Evidence |
+|---|---|---|
+| Automated voice menus and voicemail | Selecting menus or functions | [Kyoto Prefectural Police](https://www.pref.kyoto.jp/fukei/jidouonsei2.html) provides a numbered-menu example: public authority source |
+| Alarm reporting | Contact ID represents alarm information with tones | [SIA DC-05](https://www.securityindustry.org/industry-standards/dc-05-2016/): industry-association description; the research verified a search excerpt, not the page body |
+| Broadcast cue tones | Signals local advertisement insertion; migration to SCTE-35 has also been documented | [Cue tone](https://en.wikipedia.org/wiki/Cue_tone): secondary source / [TSL deployment account](https://tslproducts.com/news/dnf-upgrades-news-12-to-scte-content-management/): vendor source |
+| Amateur-radio repeater remote control | Represents configuration commands on a control link | [repeater-builder explanation](https://www.repeater-builder.com/voip/pdf/remote-allstar-node.pdf): secondary source |
+| Caller identification on some networks | Notifies the calling number on networks that had already adopted DTMF signaling | [ETSI EN 300 659-1](https://www.etsi.org/deliver/etsi_en/300600_300699/30065901/01.03.01_60/en_30065901v010301p.pdf): public standard; the research verified a search excerpt concerning its annex |
+
+Japan's Number Display service uses FSK conforming to ITU-T V.23, not DTMF.
+The primary source [NTT West technical reference, Table 4.2.3, p.65](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf) specifies 1200 bit/s, a 1300 Hz mark, and a 2100 Hz space.
+The function of conveying a number does not make FSK and DTMF the same signaling method.
+
+## 🔊 Potential for covert channels across air gaps
+
+Physically disconnecting a network can still leave a path for information where sound can travel.
+DTMF provides an audible way to study that possibility through the correspondence between tones and symbols.
+It is poorly suited to secret communication because it is audible and its specification is public.
+Anyone able to receive the tones can use the public mapping to recover the keys; DTMF itself provides no encryption.
+
+Using all sixteen symbols gives `log2(16) = 4` bits per key.
+The following are calculated upper bounds assuming one key per cycle, not measured transfer rates.
+The Japanese-period row also assumes sixteen signals for comparison; it does not mean Japan's twelve-key terminal specification encodes four bits per key.
+
+| Cycle reference | Bits per key | Cycle ms | Calculated bit/s | Approx. bit/s |
+|---|---|---|---|---|
+| AT&T | 4 | 93 | 43.01 | 43 |
+| Japan / NTT | 4 | 120 | 33.33 | 33 |
+
+The calculation is `4 / (cycle ms / 1000)`. It excludes synchronization, error-handling overhead, and failures caused by the acoustic environment.
+Primary sources: [Q.23's sixteen signals](https://www.itu.int/rec/T-REC-Q.23-198811-I/en), [Q.24 Table A-1's cycles](https://www.itu.int/rec/T-REC-Q.24-198811-I/en), and [NTT terminal sending requirements](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf).
+Hanspach and Goetz's 2013 acoustic research is described as achieving 20 bit/s, the same order of magnitude. The cited evidence here is a [secondary account of the paper](https://grahamcluley.com/malware-air-gap-computer-sound/), not a comparison under matched conditions.
+
+[Day120 Airborne Tone Link](https://ipusiron.github.io/airborne-tone-link/) also uses less-audible frequency bands; DTMFusion offers an audible counterpart for studying sound as an information path.
+Defenders can consider whether audio input and output cross an isolation boundary and whether recordings retain digits.
+[Day041 Mic Gain Logger](https://ipusiron.github.io/mic-gain-logger/) teaches frequency-band monitoring, but cannot by itself establish whether covert communication is present.
+
+For broader discussion of data entering or leaving isolated environments and their threat models, see the author's two related books.
+These links lead to the author's book introductions, which are primary sources; both books are in Japanese.
+
+- [Air-Gap Bridge: Data Output Techniques for Isolated Environments](https://akademeia.info/?page_id=53554)
+- [Air-Gap Bridge: Data Input Techniques for Isolated Environments](https://akademeia.info/?page_id=53563)
+
+## 🌏 Differences between Japan and other systems
+
+Terminal sending requirements, receiver criteria, and service prices need separate comparisons even when all involve DTMF.
+Japan's terminal conditions specify frequency deviation within ±1.5%, tones of at least 50 ms, pauses of at least 30 ms, and cycles of at least 120 ms.
+The two-tone level difference is at most 5 dB with low-group power no greater than high-group power; the table has three high-group columns.
+Q.23 permits ±1.8% sending deviation, and Q.24 Table A-1 has different receiver values for NTT and AT&T.
+Primary sources: [NTT West Table 3.3.7](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf), [Q.23](https://www.itu.int/rec/T-REC-Q.23-198811-I/en), and [Q.24](https://www.itu.int/rec/T-REC-Q.24-198811-I/en).
+VoLTE MTSI specifies tones and gaps of at least 65 ms each according to the [copy of TS 26.114 Annex G.2](https://www.itecspec.com/3gpp/26.114/s/g.2), treated here as a secondary source. This is not a universal requirement for every country outside Japan.
+
+NTT West's monthly residential subscriber-line charges differ between push-button and dial-pulse service in some exchange classes (checked October 2026).
+The figures below follow the residential table in the primary source [NTT West basic charges](https://www.ntt-west.co.jp/denwa/charge/basic/basic.html).
+
+| Exchange class | Push-button service | Dial-pulse service |
+|---|---|---|
+| Class 1 | 1,980 yen | 1,815 yen |
+| Class 2 | 1,980 yen | 1,925 yen |
+| Class 3 | 2,090 yen | 2,090 yen |
+
+In the United States, Touch-Tone initially carried an additional charge ([Hagley Museum](https://hagley.org/research/news/hagley-vault/date-november-18-1963-bell-telephone-began-offering-worlds-first), a public museum source).
+The [Christian Science Monitor in 1996](https://www.csmonitor.com/1996/0509/050996.feat.whathapp.1.html) and [Honolulu Star-Bulletin in 2003](https://archives.starbulletin.com/2003/04/13/news/perez.html) reported contemporary surcharge practices or litigation. These are historical examples from secondary reporting.
+Caller identification also differs: Japan's Number Display uses FSK, while some networks use DTMF. A shared service name does not establish a shared signaling method.
+
 ## 📚 Circuit and lesson sources
 
 - [TP5089 datasheet](https://pf.unikeyic.com/datasheet/43/7d/d1e0/437dd1e00336b1f0b5169f5d864a3432.pdf): primary-source mirror. The diagram shows the 3.579545 MHz crystal, programmable counters, ratioed-capacitor converters, mixer, and emitter follower. Audio uses Table I frequencies.

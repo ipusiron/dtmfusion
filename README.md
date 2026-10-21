@@ -169,6 +169,121 @@ WAV入力はPCM 16/24/32bitまたはfloat32、1/2チャンネル、8〜96kHz、6
 詳細な数値は[測定データ](docs/measurements.json)にあります。受信の周期条件と声の誤認を減らす2倍音の検査は未実装です。
 つまみ横の規格判定は設定値からの計算、復元結果は音からの推定であり、同一の判定ではありません。
 
+## ☎️ 電話機とDTMF音の関係
+
+ダイヤル回線のDP（Dial Pulse）は、回線の電流を断続させたパルスの数で数字を伝えます。
+プッシュ回線のPB（Push Button）は、低群と高群の2音を組み合わせたDTMFで数字を伝えます。
+アナログの加入者回線でPB信号を送るときは、音そのものが線を通ります。
+DPとPBの信号条件は、一次資料の[NTT西日本・技術参考資料第6.2版、表3.3.6と表3.3.7](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf)に分けて載っています。
+
+携帯電話やVoLTE、IP電話では、キーに対応する数字をイベントとして運び、相手側で音を再生成することが多くあります。
+回線交換の携帯電話はSTART DTMF／STOP DTMFで数字を伝え、VoLTEのMTSIではRFC 4733のtelephone-eventに対応します。
+これらの3GPPの説明は、[TS 24.008 §5.5.7.2](https://itecspec.com/3gpp/24.008/s/5.5.7.2)と[TS 26.114 Annex G.3](https://itecspec.com/3gpp/26.114/s/g.3)の規格の写し（二次資料）によります。
+一次資料の[RFC 4733 §1.2](https://www.rfc-editor.org/rfc/rfc4733)は、低ビットレートの音声コーデックでDTMFを十分忠実に再現できるとは限らないことを説明しています。
+録音に残る音と、網が運ぶ数字は別物になり得ます。
+
+## 🕰️ DTMF音の歴史
+
+DTMFは、音の組み合わせを選ぶ設計、電話サービスへの導入、電子回路への集積という流れで発展しました。
+次の表では、資料ごとに年と根拠の強さを分けています。
+
+| 時期 | 出来事と位置づけ | 出典の強さ |
+|---|---|---|
+| 1960年 | Schenkerが2群の音による符号を論文で説明。母音の倍音比を避け、隣接比21:19、群間1.5倍を採用。高群は1094/1209/1336/1477Hzで、1633Hzは含まない | [原論文](https://www.repeater-builder.com/tech-info/dtmf/pdfs/bstj-39-01-pages-235-255.pdf)：一次資料 |
+| 1963年11月18日 | 米国ペンシルベニア州CarnegieとGreensburgでTouch-Toneを商用提供。追加料金を払う加入者向けの10ボタン電話機 | [Hagley Museum](https://hagley.org/research/news/hagley-vault/date-november-18-1963-bell-telephone-began-offering-worlds-first)：公的資料（博物館） |
+| 1968年とされる | Western Electric 2500の12ボタン化で＊と＃を追加。1969年とする記述もあり、年は確定しない | [Push-button telephone](https://en.wikipedia.org/wiki/Push-button_telephone)：二次資料 |
+| 1968年の記事 | AUTOVONのFO、F、I、Pという4つの優先度ボタンを紹介。1633Hz列との対応は二次資料による | [Bell Labs Record](https://www.telephonecollectors.info/index.php/browse/document-repository/catalogs-manuals/bell-system-we/bell-labs-record/11826-68apr-blr-p106-autovon/file)：一次資料／対応は[Crypto Museum](https://www.cryptomuseum.com/phone/autovon/index.htm)：二次資料 |
+| 1969年ごろ | 日本のプッシュホン600P形が登場。販売、命名、量産など資料が示す節目が異なるため、月日は特定しない | [NTT東日本データブック](https://www.ntt-east.co.jp/databook/pdf/2024_S4.pdf)と[NTT技術史料館](https://hct.rd.ntt/panel/pdf/2_F_2_1_1.pdf)：一次資料 |
+| 専用ICの時代 | TP5089では、水晶を基準にカウンターと容量比D/Aで音を作り、ミキサーで加算 | [TP5089データシート](https://pf.unikeyic.com/datasheet/43/7d/d1e0/437dd1e00336b1f0b5169f5d864a3432.pdf)：一次資料のミラー |
+
+一次資料の[ITU-T Q.23](https://www.itu.int/rec/T-REC-Q.23-198811-I/en)では、数字10個と予備6個の計16信号を扱います。
+一般的な12キーの電話機と、この教材のA〜Dを含む16キーの表は、同じ2群の方式を使っています。
+
+## 📞 今でもDTMF音を使って通話できるか
+
+DTMFによる電話の操作は現在も使われています。
+NTTの固定電話は2024年1月にIP網への局内切替を進めましたが、2025年7月版の技術参考資料では、メタル回線側でDPとPBの両方を受信する条件を定めています。
+網の中がIP化されたことと、加入者の電話機が送る信号の方式は分けて考えます。
+一次資料：[NTT東日本のIP網移行案内](https://www.ntt-east.co.jp/info/detail/231214_01.html)、[NTT西日本・技術参考資料第6.2版](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf)。
+
+通話がつながったあとの自動音声案内でも、番号ボタンによる選択が使われます。
+公的資料の[京都府警の案内](https://www.pref.kyoto.jp/fukei/jidouonsei2.html)は、番号選択式の受付と、ダイヤル式電話の利用者は待機する扱いを示しています。
+ダイヤル回線でも、対応する電話機の［トーン］切替やサービスの案内に従い、接続後にPB信号を送れる場合があります。
+一次資料の[シャープFAQ](https://cs.sharp.co.jp/faq/qa?qid=119212)と[NTT東日本の171利用案内](https://www.ntt-east.co.jp/akita/information/detail/pdf/100519.pdf)に、この切替の例があります。
+
+次の移行は、メタル回線から光回線電話やワイヤレス固定電話などへの変更です。
+一次資料の[NTT西日本の2025年9月29日公表資料](https://www.ntt-west.co.jp/news/2509/250929a.html)は、2035年ごろまでの移行を示しています。
+ワイヤレス固定電話では一部の電話機が利用できなくなる可能性があるため、今の電話機をそのまま使えるかは移行先の案内で確認する必要があります。
+
+## 🧩 応用手法
+
+DTMFは、数字の入力に加えて、装置へ短い記号を知らせる用途にも使われます。
+用途ごとの根拠は次のとおりです。
+
+| 用途 | DTMFの役割 | 出典の強さ |
+|---|---|---|
+| 自動音声案内や音声メール | メニューや機能の選択 | 番号選択式案内の例は[京都府警](https://www.pref.kyoto.jp/fukei/jidouonsei2.html)：公的資料 |
+| 警報装置の通報 | Contact IDで警報などの情報を表す | [SIA DC-05](https://www.securityindustry.org/industry-standards/dc-05-2016/)：事業者団体の説明。調査では検索の抜粋を確認し、ページ本文は未確認 |
+| 放送のキュー音 | ローカルCMなどを差し込む合図。SCTE-35への移行例もある | [Cue tone](https://en.wikipedia.org/wiki/Cue_tone)：二次資料／[TSLの導入事例](https://tslproducts.com/news/dnf-upgrades-news-12-to-scte-content-management/)：事業者資料 |
+| アマチュア無線レピーターの遠隔制御 | 制御リンクで設定変更の指示を表す | [repeater-builderの解説](https://www.repeater-builder.com/voip/pdf/remote-allstar-node.pdf)：二次資料 |
+| 一部の網の発信者番号通知 | DTMF方式をすでに導入した網で番号を通知 | [ETSI EN 300 659-1](https://www.etsi.org/deliver/etsi_en/300600_300699/30065901/01.03.01_60/en_30065901v010301p.pdf)：公的標準。調査では附属書に関する検索の抜粋を確認 |
+
+日本のナンバー・ディスプレイはDTMFではなく、ITU-T V.23に準拠したFSKです。
+一次資料の[NTT西日本・技術参考資料、表4.2.3（p.65）](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf)は、1200bit/s、マーク1300Hz、スペース2100Hzを定めています。
+数字を知らせる機能でも、DTMFとFSKは異なる信号方式です。
+
+## 🔊 エアギャップの秘密通信路への可能性
+
+ネットワークを物理的に切り離した環境でも、音が届く場所には情報の経路が残り得ます。
+DTMFは、その可能性を可聴音と記号の対応から考える教材になります。
+ただし、可聴で規格も公開されているため、秘密の通信路には向きません。
+受信できた音からは公開された対応表でキーを復元でき、DTMF自体には暗号化の機能がありません。
+
+16通りのキーをすべて使えば、1キーは`log2(16) = 4`ビットに相当します。
+次の値は、周期ごとに1キーを送ると仮定した計算上の上限であり、実測の転送速度ではありません。
+日本の行も比較のために16信号を仮定しており、日本の端末規格の12キーで4ビットを表せるという意味ではありません。
+
+| 基準にした周期 | 1キーの情報量 | 周期ms | 計算 bit/s | 約 bit/s |
+|---|---|---|---|---|
+| AT&T | 4 | 93 | 43.01 | 43 |
+| 日本 / NTT | 4 | 120 | 33.33 | 33 |
+
+計算は`4 ÷ (周期ms / 1000)`です。同期や誤りへの対処に使う情報、音響環境による失敗は含みません。
+一次資料：[Q.23の16信号](https://www.itu.int/rec/T-REC-Q.23-198811-I/en)、[Q.24表A-1の周期](https://www.itu.int/rec/T-REC-Q.24-198811-I/en)、[NTTの端末送出条件](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf)。
+HanspachとGoetzの2013年の音響研究は20bit/sと紹介されており、上の計算と同じ桁です。ここでの出典は[論文の二次紹介](https://grahamcluley.com/malware-air-gap-computer-sound/)であり、条件をそろえた性能比較ではありません。
+
+[Day120 Airborne Tone Link](https://ipusiron.github.io/airborne-tone-link/)が聞こえにくい帯域も扱うのに対し、DTMFusionは聞こえる側から音の情報経路を学べます。
+守る側では、音の入力と出力が隔離の境界を越えるか、録音に番号が残るかを検討できます。
+[Day041 Mic Gain Logger](https://ipusiron.github.io/mic-gain-logger/)は帯域の監視に関する教材ですが、それだけで秘密通信の有無を判定できるものではありません。
+
+隔離環境とのデータの出入りや脅威モデルを学ぶ関連書籍として、作者の次の2冊を案内します。
+リンク先は著者による書籍紹介（一次資料）です。
+
+- [『エアギャップ・ブリッジ 隔離環境のデータ出力技法』](https://akademeia.info/?page_id=53554)
+- [『エアギャップ・ブリッジ 隔離環境のデータ入力技法』](https://akademeia.info/?page_id=53563)
+
+## 🌏 海外と日本の違い
+
+同じDTMFでも、端末の送出条件、受信側の基準、サービスの料金は分けて比較する必要があります。
+日本の端末送出条件は周波数偏差±1.5%以内、音50ms以上、休止30ms以上、周期120ms以上です。
+高群と低群の電力差は5dB以内で、低群が高群を超えず、表に載る高群は3列です。
+Q.23の送出偏差は±1.8%で、Q.24表A-1の受信基準もNTT列とAT&T列で異なります。
+一次資料：[NTT西日本・表3.3.7](https://www.ntt-west.co.jp/gisanshi/analog/pdf/analog_gisanshi_06_02.pdf)、[Q.23](https://www.itu.int/rec/T-REC-Q.23-198811-I/en)、[Q.24](https://www.itu.int/rec/T-REC-Q.24-198811-I/en)。
+VoLTEのMTSIでは音と間隔がそれぞれ65ms以上とされます。これは[TS 26.114 Annex G.2の写し](https://www.itecspec.com/3gpp/26.114/s/g.2)（二次資料）に基づく値で、海外全体の一律の条件ではありません。
+
+NTT西日本の加入電話（住宅用）の月額回線使用料は、プッシュ回線とダイヤル回線で差がある区分があります（2026年10月確認）。
+次の表は、一次資料の[NTT西日本「基本料金」](https://www.ntt-west.co.jp/denwa/charge/basic/basic.html)の住宅用欄の表記によります。
+
+| 電話サービス取扱所の種類 | プッシュ回線用 | ダイヤル回線用 |
+|---|---|---|
+| 1級取扱所 | 1,980円 | 1,815円 |
+| 2級取扱所 | 1,980円 | 1,925円 |
+| 3級取扱所 | 2,090円 | 2,090円 |
+
+米国では、Touch-Toneの開始時に追加料金がありました（[Hagley Museum](https://hagley.org/research/news/hagley-vault/date-november-18-1963-bell-telephone-began-offering-worlds-first)：公的資料）。
+その後の[1996年のChristian Science Monitor](https://www.csmonitor.com/1996/0509/050996.feat.whathapp.1.html)と[2003年のHonolulu Star-Bulletin](https://archives.starbulletin.com/2003/04/13/news/perez.html)には、追加料金をめぐる当時の状況や訴訟の報道があります。いずれも二次資料による歴史的な事例です。
+発信者番号通知にも方式の違いがあり、日本のナンバー・ディスプレイはFSK、一部の網ではDTMF方式が使われます。機能名だけで信号方式を決めつけることはできません。
+
 ## 📚 回路と座学の出典
 
 - [TP5089データシート](https://pf.unikeyic.com/datasheet/43/7d/d1e0/437dd1e00336b1f0b5169f5d864a3432.pdf)：一次資料のミラー。水晶3.579545MHz、プログラマブルカウンター、容量比D/A、ミキサー、エミッターフォロワを表示。音は表Iの実周波数を使用
