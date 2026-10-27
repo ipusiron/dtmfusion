@@ -364,6 +364,7 @@ dtmfusion/                     # Tool files
 ├── .gitignore                 # Excludes Python bytecode caches
 ├── index.html                 # Single-page interface and CSP
 ├── style.css                  # Themes and responsive layout
+├── theme-init.js              # Sets the theme before the first paint
 ├── messages.js                # Japanese and English text
 ├── dtmf-core.js               # Pure synthesis, analysis and limits
 ├── audio-io.js                # Playback, microphone and cleanup
@@ -402,6 +403,7 @@ dtmfusion/                     # Tool files
     ├── hold.test.js           # Loop seams, lengths and gain
     ├── wav.test.js            # WAV and invalid input
     ├── structure.test.js      # CSP, dictionaries, colors and format
+    ├── theme-init.test.js     # Initial theme choice and load position
     └── readme.test.js         # README tables, structure and images
 ```
 

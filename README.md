@@ -364,6 +364,7 @@ dtmfusion/                     # ツール一式
 ├── .gitignore                 # Pythonキャッシュの除外
 ├── index.html                 # 1枚の画面とCSP
 ├── style.css                  # 明暗・レスポンシブ表示
+├── theme-init.js              # 最初の描画の前に明暗を決める
 ├── messages.js                # 日英の全文言
 ├── dtmf-core.js               # 純粋な生成・解析・規格判定
 ├── audio-io.js                # 再生・マイクと終了処理
@@ -402,6 +403,7 @@ dtmfusion/                     # ツール一式
     ├── hold.test.js           # ループの継ぎ目・長さ・ゲイン
     ├── wav.test.js            # WAVと不正入力
     ├── structure.test.js      # CSP・辞書・配色・形式
+    ├── theme-init.test.js     # 明暗の初期判定と読み込み位置
     └── readme.test.js         # 日英READMEの表・構造・画像
 ```
 
