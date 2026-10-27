@@ -4,7 +4,8 @@
   const $ = id => document.getElementById(id), dictionaries = DTMFMessages;
   const stored = key => { try { return localStorage.getItem('dtmfusion.' + key); } catch (_) { return null; } };
   let language = stored('language') === 'en' ? 'en' : 'ja';
-  let theme = stored('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  // theme-init.js sets data-theme in <head> before the first paint; keep that value here.
+  let theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
   const core = DTMFCore, audio = DTMFAudio.create();
   let statusKey = 'ready', lastPlayed = null, activeKey = null, heldKey = null, micActive = false;
   let previewKey = '5', xray = true;
