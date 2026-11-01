@@ -233,7 +233,7 @@ DTMFは、数字の入力に加えて、装置へ短い記号を知らせる用�
 |---|---|---|
 | 自動音声案内や音声メール | メニューや機能の選択 | 番号選択式案内の例は[京都府警](https://www.pref.kyoto.jp/fukei/jidouonsei2.html)：公的資料 |
 | 警報装置の通報 | Contact IDで警報などの情報を表す | [SIA DC-05](https://www.securityindustry.org/industry-standards/dc-05-2016/)：事業者団体の説明。調査では検索の抜粋を確認し、ページ本文は未確認 |
-| 放送のキュー音 | ローカルCMなどを差し込む合図。SCTE-35への移行例もある | [Cue tone](https://en.wikipedia.org/wiki/Cue_tone)：二次資料／[TSLの導入事例](https://tslproducts.com/news/dnf-upgrades-news-12-to-scte-content-management/)：事業者資料 |
+| 放送のキュー音 | ローカルCMなどを差し込む合図。SCTE-35への移行例もある | [Cue tone](https://en.wikipedia.org/wiki/Cue_tone)：二次資料／TSLの導入事例：事業者資料 |
 | アマチュア無線レピーターの遠隔制御 | 制御リンクで設定変更の指示を表す | [repeater-builderの解説](https://www.repeater-builder.com/voip/pdf/remote-allstar-node.pdf)：二次資料 |
 | 一部の網の発信者番号通知 | DTMF方式をすでに導入した網で番号を通知 | [ETSI EN 300 659-1](https://www.etsi.org/deliver/etsi_en/300600_300699/30065901/01.03.01_60/en_30065901v010301p.pdf)：公的標準。調査では附属書に関する検索の抜粋を確認 |
 
