@@ -233,7 +233,7 @@ The evidence differs by application.
 |---|---|---|
 | Automated voice menus and voicemail | Selecting menus or functions | [Kyoto Prefectural Police](https://www.pref.kyoto.jp/fukei/jidouonsei2.html) provides a numbered-menu example: public authority source |
 | Alarm reporting | Contact ID represents alarm information with tones | [SIA DC-05](https://www.securityindustry.org/industry-standards/dc-05-2016/): industry-association description; the research verified a search excerpt, not the page body |
-| Broadcast cue tones | Signals local advertisement insertion; migration to SCTE-35 has also been documented | [Cue tone](https://en.wikipedia.org/wiki/Cue_tone): secondary source / [TSL deployment account](https://tslproducts.com/news/dnf-upgrades-news-12-to-scte-content-management/): vendor source |
+| Broadcast cue tones | Signals local advertisement insertion; migration to SCTE-35 has also been documented | [Cue tone](https://en.wikipedia.org/wiki/Cue_tone): secondary source / TSL deployment account: vendor source |
 | Amateur-radio repeater remote control | Represents configuration commands on a control link | [repeater-builder explanation](https://www.repeater-builder.com/voip/pdf/remote-allstar-node.pdf): secondary source |
 | Caller identification on some networks | Notifies the calling number on networks that had already adopted DTMF signaling | [ETSI EN 300 659-1](https://www.etsi.org/deliver/etsi_en/300600_300699/30065901/01.03.01_60/en_30065901v010301p.pdf): public standard; the research verified a search excerpt concerning its annex |
 
