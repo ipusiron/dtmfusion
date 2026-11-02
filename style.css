@@ -68,6 +68,7 @@ footer a { display: inline-flex; align-items: center; min-height: 44px; }
 dialog { color: var(--fg); background: var(--surface); border: 1px solid var(--border); max-width: min(560px, 90vw); }
 dialog::backdrop { background: var(--shadow); opacity: 0.85; }
 [hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (hover: hover) { button:hover { border-color: var(--neon); } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

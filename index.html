@@ -32,7 +32,7 @@
     <section class="panel" id="instrument"><h2 data-i18n="keypad"></h2>
       <div class="instrument-grid">
         <div class="key-station">
-          <div class="readout"><output id="active-key">—</output><span id="active-frequency">697 + 1209 Hz</span></div>
+          <div class="readout"><output id="active-key" aria-live="off">—</output><span id="active-frequency">697 + 1209 Hz</span></div>
           <button id="xray-toggle" class="xray-toggle" type="button" aria-pressed="true" aria-controls="keypad-wires">
             <span data-i18n="xray"></span><span id="xray-state">ON</span></button>
           <div id="keypad-shell" class="keypad-shell xray-on">
@@ -74,7 +74,8 @@
       <p class="muted" data-i18n="wavHint"></p>
       <div class="actions"><button id="mic" data-i18n="mic"></button><button id="mic-stop" data-i18n="micStop"></button></div>
       <p class="muted" data-i18n="micNote"></p><p id="environment" class="muted"></p>
-      <p id="status" role="status"></p><h3 data-i18n="restored"></h3><output id="decoded" class="decoded" aria-live="polite">—</output>
+      <p id="status" role="status"></p><h3 data-i18n="restored"></h3><output id="decoded" class="decoded" aria-live="off">—</output>
+      <p id="decoded-live" class="visually-hidden" aria-live="polite">—</p>
       <p class="muted" data-i18n="resultHint"></p><ol id="decisions"></ol>
       <p id="power-scale" class="muted" data-i18n="powerScale"></p><div id="powers" class="powers"></div>
       <button id="clear" data-i18n="clear"></button></section>
