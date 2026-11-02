@@ -404,6 +404,7 @@ dtmfusion/                     # Tool files
     ├── wav.test.js            # WAV and invalid input
     ├── structure.test.js      # CSP, dictionaries, colors and format
     ├── theme-init.test.js     # Initial theme choice and load position
+    ├── live-region.test.js    # Live-region deduplication
     └── readme.test.js         # README tables, structure and images
 ```
 

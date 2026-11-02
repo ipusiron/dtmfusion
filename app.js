@@ -35,14 +35,30 @@
     if (className) el.className = className;
     return el;
   }
-  function showStatus(key) { statusKey = key; $('status').textContent = t(key); }
+  // Live regions are rewritten only when their text changes, so screen readers do not repeat them.
+  function setLiveText(el, text) {
+    if (el.textContent === text) return false;
+    el.textContent = text;
+    return true;
+  }
+  // While the microphone streams results, the spoken copy of #decoded waits at least 1.5 s between updates.
+  const LIVE_GAP_MS = 1500;
+  let liveTimer = 0, liveAt = -Infinity;
+  function announceDecoded(text, immediate) {
+    clearTimeout(liveTimer); liveTimer = 0;
+    const wait = immediate ? 0 : liveAt + LIVE_GAP_MS - performance.now();
+    if (wait > 0) { liveTimer = setTimeout(() => announceDecoded(text, true), wait); return; }
+    if (setLiveText($('decoded-live'), text)) liveAt = performance.now();
+  }
+  function showStatus(key) { statusKey = key; setLiveText($('status'), t(key)); }
   function settings() {
     return core.options({ mode: $('layer').value, twist: Number($('twist').value), offset: Number($('offset').value),
       toneMs: Number($('toneMs').value), pauseMs: Number($('pauseMs').value) });
   }
   function updateControls() {
     for (const [key, unit] of [['twist', 'dB'], ['offset', '%'], ['toneMs', 'ms'], ['pauseMs', 'ms']]) {
-      $(key + '-value').textContent = `${$(key).value} ${unit}`;
+      const text = `${$(key).value} ${unit}`;
+      setLiveText($(key + '-value'), text); $(key).setAttribute('aria-valuetext', text);
     }
     const key = activeKey || previewKey, o = settings();
     $('active-frequency').textContent = core.actualFrequencies(key, o).map(f => f.toFixed(o.mode === 'ic' || o.offset ? 1 : 0)).join(' + ') + ' Hz';
@@ -197,7 +213,7 @@
   function highlight(key) {
     if (key) previewKey = key;
     activeKey = key;
-    $('active-key').textContent = key || '—';
+    setLiveText($('active-key'), key || '—');
     document.querySelectorAll('[data-key]').forEach(el => {
       const active = el.dataset.key === key;
       el.classList.toggle('active', active); el.setAttribute('aria-pressed', String(active));
@@ -210,7 +226,8 @@
     });
   }
   function renderResult() {
-    $('decoded').textContent = result && result.text || '—';
+    const decoded = result && result.text || '—';
+    setLiveText($('decoded'), decoded); announceDecoded(decoded, !micActive);
     $('decisions').replaceChildren();
     if (result) {
       for (const r of result.results.slice(-64)) {
@@ -406,6 +423,7 @@
     ['toneMs', 10, 200, 1, 80], ['pauseMs', 10, 200, 1, 60]]) {
     const el = node('div'), label = node('label'), output = node('output'), input = node('input');
     label.htmlFor = key; label.dataset.i18n = key; output.id = key + '-value'; output.htmlFor = key;
+    output.setAttribute('aria-live', 'off'); // The slider reads its own aria-valuetext.
     Object.assign(input, { id: key, type: 'range', min, max, step, value });
     input.addEventListener('input', () => { stopPlayback(); prepareHold(); });
     el.append(label, input, output); $('settings').append(el);

@@ -404,6 +404,7 @@ dtmfusion/                     # ツール一式
     ├── wav.test.js            # WAVと不正入力
     ├── structure.test.js      # CSP・辞書・配色・形式
     ├── theme-init.test.js     # 明暗の初期判定と読み込み位置
+    ├── live-region.test.js    # 読み上げ領域の重複書き込み防止
     └── readme.test.js         # 日英READMEの表・構造・画像
 ```
 
